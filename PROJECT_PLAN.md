@@ -1,21 +1,21 @@
 # OpenBook Project Plan
 
-## 100% Local, Privacy-First RAG System
+## Privacy-First RAG System with Flexible LLM Integration
 
 ## Project Overview
 
-**OpenBook** is a fully local, privacy-first command-line interface (CLI) tool that transforms local document directories into a queryable knowledge base using RAG (Retrieval-Augmented Generation) technology. The tool runs entirely on your machine, indexing documents into a local vector database and providing an MCP (Model Context Protocol) server interface for seamless integration with LLM tools—all without any network requests or cloud dependencies.
+**OpenBook** is a privacy-first command-line interface (CLI) tool that transforms local document directories into a queryable knowledge base using RAG (Retrieval-Augmented Generation) technology. Documents are indexed into a local vector database, and users can query the indexed knowledge using their choice of LLM provider—from fully local models (Ollama) to cloud-based APIs (OpenAI, Anthropic).
 
-**Core Philosophy**: Your documents, your machine, your privacy. No cloud, no APIs, no tracking—ever.
+**Core Philosophy**: Your documents stay local. Choose your LLM freely. Maximum flexibility, maximum control.
 
 ### Core Value Proposition
 
-- **100% Local Execution**: Everything runs on your machine—no internet required, no data ever leaves your computer
-- **Privacy First**: Your documents, embeddings, and queries stay completely private
-- **Instant Context**: Turn any directory into searchable LLM context in seconds
-- **Ephemeral Storage**: Database is created on startup and cleaned up on exit (optional persistence available)
-- **Offline Ready**: Works without internet connection after initial model download
-- **MCP Integration**: Local server exposes indexed knowledge via standardized protocol for LLM tools
+- **Local Document Processing**: Your documents are indexed locally and never transmitted anywhere
+- **Privacy First**: Document embeddings and vector database stay completely private on your machine
+- **Flexible LLM Integration**: Choose between fully local (Ollama) or cloud-based LLMs (OpenAI, Anthropic)
+- **Instant Context**: Turn any directory into searchable knowledge in seconds
+- **Simple CLI Interface**: Easy-to-use commands for indexing and querying
+- **Offline Indexing**: Index documents without internet connection after initial model download
 
 ---
 
@@ -26,7 +26,7 @@
 ```
 ╔═══════════════════════════════════════════════════════════════╗
 ║                    YOUR LOCAL MACHINE                         ║
-║                      (100% Offline)                           ║
+║               (Documents Stay Private)                        ║
 ║                                                               ║
 ║  ┌─────────────────────────────────────────────────────────┐ ║
 ║  │                    OpenBook CLI                          │ ║
@@ -35,29 +35,43 @@
 ║               │                            │                  ║
 ║               ▼                            ▼                  ║
 ║      ┌─────────────────┐          ┌──────────────────┐       ║
-║      │  File Indexing  │          │  MCP Server      │       ║
-║      │     Module      │          │  (localhost/IPC) │       ║
-║      └────────┬────────┘          └────────┬─────────┘       ║
-║               │                            │                  ║
-║               ▼                            ▼                  ║
-║      ┌─────────────────────────────────────────────────┐     ║
+║      │  File Indexing  │          │  Query Handler   │       ║
+║      │     Module      │          │   with Provider  │       ║
+║      └────────┬────────┘          │     Switcher     │       ║
+║               │                   └────────┬─────────┘       ║
+║               ▼                            │                  ║
+║      ┌─────────────────────────────────────┴───────────┐     ║
 ║      │         Python Backend Services                  │     ║
 ║      │  ┌──────────────┐      ┌───────────────────┐   │     ║
 ║      │  │  Embedding   │      │   Vector Store    │   │     ║
 ║      │  │   Service    │◄────►│   (ChromaDB)      │   │     ║
-║      │  │ (MiniLM-L6)  │      │   (Local Disk)    │   │     ║
+║      │  │ (MiniLM-L6)  │      │   (In-Memory)     │   │     ║
 ║      │  └──────────────┘      └───────────────────┘   │     ║
-║      └─────────────────────────────────────────────────┘     ║
-║                                                               ║
-║  📁 Your Documents  →  🧠 Local Embeddings  →  💾 Local DB    ║
-║                                                               ║
-║                    ❌ NO INTERNET REQUIRED                    ║
-║                    ❌ NO CLOUD SERVICES                       ║
-║                    ❌ NO DATA TRANSMISSION                    ║
+║      └──────────────────────────┬───────────────────────┘     ║
+║                                 │                             ║
+║                                 ▼                             ║
+║                        ┌────────────────┐                     ║
+║                        │ LLM Providers  │                     ║
+║                        │ (User Choice)  │                     ║
+║                        └───────┬────────┘                     ║
+║                                │                              ║
+╠════════════════════════════════┼══════════════════════════════╣
+║  📁 Documents (Local)          │                              ║
+║  🧠 Embeddings (Local)          │                              ║
+║  💾 Vector DB (Local)           │                              ║
+║                                 │                              ║
+║  ┌──────────────────────────────┼──────────────────────────┐  ║
+║  │              CHOOSE YOUR LLM PROVIDER                    │  ║
+║  │                                                          │  ║
+║  │  🏠 Ollama (100% Local)   ☁️ OpenAI    ☁️ Anthropic      │  ║
+║  │     - No API Key           - API Key    - API Key       │  ║
+║  │     - Fully Offline        - Cloud      - Cloud         │  ║
+║  │     - Maximum Privacy      - Fast       - Fast          │  ║
+║  └──────────────────────────────────────────────────────────┘  ║
 ╚═══════════════════════════════════════════════════════════════╝
 ```
 
-### Technology Stack (All Local)
+### Technology Stack
 
 #### Frontend (CLI)
 
@@ -69,38 +83,63 @@
 
 - **Python 3.x**: Embedding and vector operations (runs locally on your CPU/GPU)
 - **sentence-transformers**: Local embedding generation (all-MiniLM-L6-v2, downloaded once and cached)
-- **ChromaDB**: Local vector database for semantic search (stored on your disk)
+- **ChromaDB**: In-memory vector database for semantic search (lifespan tied to CLI session)
+- **LangChain**: Framework for RAG chain orchestration and LLM provider abstraction
+
+#### LLM Providers (User Choice)
+
+- **Ollama (Local)**: 100% local LLM execution via langchain-ollama
+- **OpenAI (Cloud)**: GPT-4 and other models via langchain-openai
+- **Anthropic (Cloud)**: Claude models via langchain-anthropic
+- **Extensible**: Easy to add more providers (Cohere, Google AI, etc.)
 
 #### Integration
 
-- **MCP (Model Context Protocol)**: Local server interface via stdio/localhost
 - **Child Process/IPC**: TypeScript-Python communication (in-process, no network)
+- **Environment Variables**: Secure API key management for cloud providers
 
-### Local Execution Guarantees
+### Privacy & Execution Guarantees
 
-#### What Stays Local
+#### What Always Stays Local
 
 ✅ **All Documents**: Never leave your file system  
 ✅ **All Embeddings**: Generated on your CPU/GPU  
-✅ **All Vector Data**: Stored in local ChromaDB  
-✅ **All Queries**: Processed locally  
-✅ **All Results**: Computed and served from local storage  
-✅ **MCP Server**: Listens only on localhost or uses stdio
+✅ **All Vector Data**: Stored in in-memory ChromaDB session  
+✅ **Retrieved Context**: Similarity search happens entirely locally  
+✅ **Zero Telemetry**: No usage tracking or analytics
+
+#### What You Control
+
+🎛️ **LLM Provider Choice**:
+
+- Choose Ollama for 100% local, offline execution
+- Choose OpenAI/Anthropic for cloud LLM processing (requires API key)
+- Switch providers anytime with a simple flag
+
+🔐 **Your Documents Stay Private**:
+
+- Documents are never sent to cloud providers
+- Only the query + retrieved context chunks are sent to LLMs (if using cloud providers)
+- Embedding generation always happens locally
 
 #### Network Requirements
 
-- **Initial Setup**: One-time download of MiniLM-L6-v2 model (~90MB)
-- **After Setup**: Zero network activity
-- **Offline Mode**: Fully functional once model is cached
+**For Local-Only Mode (Ollama)**:
 
-#### Privacy & Security
+- One-time download of MiniLM-L6-v2 model (~90MB)
+- One-time download of Ollama model (varies by model)
+- After setup: Zero network activity
+- Fully offline capable
 
-- **Zero Telemetry**: No usage tracking or analytics
-- **Zero Cloud Dependencies**: No AWS, Azure, OpenAI, or any cloud service
-- **Zero Data Leakage**: Your documents are never transmitted anywhere
-- **Local LLM Compatible**: Works with Ollama, LM Studio, and other local LLMs
+**For Cloud LLM Mode (OpenAI/Anthropic)**:
 
-### Data Flow (100% Local)
+- Same embedding model download as above
+- API requests sent only during query execution
+- Your indexed documents remain local
+
+### Data Flow
+
+#### Indexing Flow (Always Local)
 
 ```
 📂 Your Files (Local Disk)
@@ -121,21 +160,38 @@
     ↓
 🔢 Vector Embeddings (Local Memory)
     ↓
-    ↓ [Stored via Local ChromaDB Instance]
+    ↓ [Stored in In-Memory ChromaDB Collection]
     ↓
-💾 Vector Database (Local Disk: ~/.openbook/db)
-    ↓
-    ↓ [Query Processed Locally]
-    ↓
-📊 Search Results (Local Memory)
-    ↓
-    ↓ [Served via Local MCP Server]
-    ↓
-🤖 Your LLM Tool (Local Machine - Claude Desktop, etc.)
+💾 Vector Database (In-Memory Session)
 
-🚫 NO NETWORK TRAFFIC
-🚫 NO CLOUD APIS
-🚫 NO DATA EXFILTRATION
+🚫 NO NETWORK TRAFFIC DURING INDEXING
+🔒 DOCUMENTS NEVER LEAVE YOUR MACHINE
+```
+
+#### Query Flow (Provider Dependent)
+
+```
+❓ User Query
+    ↓
+    ↓ [Embed query locally using MiniLM]
+    ↓
+💾 ChromaDB Similarity Search (Local)
+    ↓
+    ↓ [Retrieve top-K relevant chunks]
+    ↓
+📊 Context Chunks (Local Memory)
+    ↓
+    ├─────────────────────┬─────────────────────┐
+    ↓                     ↓                     ↓
+🏠 OLLAMA           ☁️ OPENAI API        ☁️ ANTHROPIC API
+(Local)             (Cloud)              (Cloud)
+    ↓                     ↓                     ↓
+🤖 LLM Response ←────────┴─────────────────────┘
+
+PRIVACY NOTE:
+- Your full documents are NEVER sent to cloud providers
+- Only: Query + Retrieved Chunks (typically 2-4KB) sent if using cloud LLMs
+- Choose Ollama for zero network traffic
 ```
 
 ---
@@ -149,19 +205,38 @@
 **Commands**:
 
 ```bash
-openbook --index <directory>    # Index documents in a directory
-openbook --serve                # Start MCP server
-openbook --query <query>        # Query the indexed knowledge
-openbook --status               # Check server status
+# Index documents in a directory
+openbook index <directory>
+
+# Query with different providers
+openbook query "What is memory consolidation?" --provider ollama --model llama3
+openbook query "Explain decision-making" --provider openai --model gpt-4
+openbook query "Language development?" --provider anthropic --model claude-3-5-sonnet-20241022
+
+# Query options
+openbook query <query> [options]
+  -p, --provider <provider>      LLM provider: ollama, openai, anthropic (default: ollama)
+  -m, --model <model>            Model name (e.g., llama3, gpt-4, claude-3-5-sonnet)
+  -k, --top-k <number>           Number of relevant chunks to retrieve (default: 4)
+  -t, --temperature <number>     Temperature for LLM response (default: 0.7)
+  --api-key <key>                API key for cloud providers (or use env variable)
+  --ollama-url <url>             Ollama endpoint URL (default: http://127.0.0.1:11434)
+
+# Check status
+openbook status
 ```
+
+**Environment Variables**:
+
+- `OPENAI_API_KEY`: OpenAI API key
+- `ANTHROPIC_API_KEY`: Anthropic API key
 
 **Lifecycle**:
 
 1. Display ASCII banner
 2. Parse command-line arguments
-3. Initialize vector database
-4. Execute requested command
-5. Clean up database on exit
+3. Execute requested command (index, query, status)
+4. Clean up and exit
 
 ### 2. Embedding Service (`src/embedding.py`)
 
@@ -196,7 +271,7 @@ openbook --status               # Check server status
 - Automatic ID generation (UUID)
 - Metadata support for document tracking
 - Flexible querying with filters
-- Ephemeral or persistent storage modes
+- Ephemeral collection lifecycle (cleared automatically on shutdown)
 
 ### 4. File Indexing Module (`src/file_indexing.py`)
 
@@ -210,24 +285,40 @@ openbook --status               # Check server status
 - Document chunking for optimal embedding
 - Metadata extraction (filename, path, modified date)
 
-### 5. MCP Server Interface
+### 5. Query Module (`src/query_rag.py`)
 
-**Purpose**: Expose indexed knowledge to local LLM tools via Model Context Protocol
+**Purpose**: Handle RAG queries with flexible LLM provider support
 
-**Local Communication Methods**:
+**Key Components**:
 
-- **stdio**: Direct input/output stream communication (most common for MCP)
-- **localhost**: Optional HTTP server on 127.0.0.1 (never exposed to network)
-- **Unix sockets**: Local IPC for secure communication
+- **ChromaVectorStoreRetriever**: LangChain-compatible retriever for local vector store
+- **LLM Provider Factory**: Creates appropriate LLM client based on user selection
+- **RAG Chain**: Orchestrates retrieval + generation using RetrievalQA
 
-**Capabilities**:
+**Supported Providers**:
 
-- Serve context on demand (locally)
-- Handle similarity searches (processed on your machine)
-- Provide document metadata (from local storage)
-- Stream large results (in-memory or local temp files)
+- **Ollama**: Local execution via `langchain-ollama`
 
-**Security Note**: The MCP server never binds to external network interfaces. All communication is strictly local-only, ensuring your data never leaves your machine.
+  - Default models: llama3, qwen3, mistral
+  - No API key required
+  - Fully offline after model download
+
+- **OpenAI**: Cloud API via `langchain-openai`
+
+  - Models: gpt-4, gpt-3.5-turbo, gpt-4-turbo
+  - Requires `OPENAI_API_KEY` environment variable
+
+- **Anthropic**: Cloud API via `langchain-anthropic`
+  - Models: claude-3-5-sonnet, claude-3-opus, claude-3-haiku
+  - Requires `ANTHROPIC_API_KEY` environment variable
+
+**Query Flow**:
+
+1. Load indexed vector store from ChromaDB
+2. Create retriever with configurable top-K
+3. Initialize LLM provider based on user selection
+4. Build RetrievalQA chain
+5. Execute query and return answer with sources
 
 ---
 
@@ -238,18 +329,20 @@ openbook --status               # Check server status
 - [x] CLI framework setup
 - [x] Embedding service with MiniLM-L6-v2
 - [x] ChromaDB vector store wrapper
+- [x] Basic RAG testing with Ollama
 - [ ] File discovery and reading
 - [ ] Document chunking strategy
 - [ ] Index command implementation
-- [ ] Query command implementation
 
-### Phase 2: MCP Server Integration
+### Phase 2: Multi-Provider LLM Integration
 
-- [ ] MCP protocol implementation
-- [ ] Server lifecycle management
-- [ ] Context serving endpoints
-- [ ] Real-time index updates
-- [ ] Status monitoring
+- [ ] Query command with provider switcher
+- [ ] Ollama provider integration (local)
+- [ ] OpenAI provider integration (cloud)
+- [ ] Anthropic provider integration (cloud)
+- [ ] Environment variable API key management
+- [ ] Provider-specific error handling
+- [ ] Query result formatting with source citations
 
 ### Phase 3: Advanced Features
 
@@ -258,16 +351,17 @@ openbook --status               # Check server status
 - [ ] Incremental indexing (only changed files)
 - [ ] Custom embedding models
 - [ ] Query result ranking and filtering
-- [ ] Export/import index snapshots
+- [ ] Persistent vector database option
 
 ### Phase 4: Performance & UX
 
 - [ ] Parallel file processing
 - [ ] Progress indicators
-- [ ] Configuration file support
+- [ ] Configuration file support (~/.openbook/config.json)
 - [ ] .openbookignore for selective indexing
 - [ ] Cache management
 - [ ] Error recovery and logging
+- [ ] Default provider preferences
 
 ---
 
@@ -276,24 +370,28 @@ openbook --status               # Check server status
 ```
 openbook/
 ├── src/
-│   ├── index.ts                 # CLI entry point
+│   ├── index.ts                 # CLI entry point with Commander.js
 │   ├── utils.ts                 # Shared utilities
+│   ├── config.ts                # Configuration management (optional)
 │   ├── commands/                # Command handlers
-│   │   ├── index.ts            # Index command
-│   │   ├── serve.ts            # MCP server command
-│   │   ├── query.ts            # Query command
-│   │   └── status.ts           # Status command
-│   ├── file_indexing.py        # Document processing
-│   ├── embedding.py            # Embedding generation
+│   │   ├── indexDocuments.ts   # Index command handler
+│   │   └── (future commands)   # Status, etc.
+│   ├── file_indexing.py        # Document processing and chunking
+│   ├── query_rag.py            # RAG query with multi-provider support
+│   ├── rag_bootstrap.py        # Initialize vector store and embeddings
 │   └── vector_db/
+│       ├── __init__.py         # Package initialization
 │       ├── vector_db.py        # ChromaDB wrapper
-│       └── embedding.py        # Alternative embedding module
+│       └── embedding.py        # Embedding service (MiniLM)
 ├── dist/                        # Compiled TypeScript
 ├── tests/                       # Test suite
+│   └── ollama_rag_test.py      # Test RAG with Ollama
+├── docs/                        # Indexed documents (example)
 ├── package.json                 # Node dependencies
 ├── requirements.txt             # Python dependencies
 ├── tsconfig.json               # TypeScript config
 ├── .gitignore
+├── PROJECT_PLAN.md             # This file
 └── README.md
 ```
 
@@ -306,7 +404,7 @@ openbook/
 **On Startup**:
 
 ```typescript
-1. Initialize ChromaDB client (ephemeral mode by default)
+1. Initialize in-memory ChromaDB client
 2. Create collection with embedding function
 3. Ready for indexing/queries
 ```
@@ -353,76 +451,69 @@ openbook/
 }
 ```
 
-### MCP Server Protocol (Local Communication)
+### Query Response Format
 
-**Communication Methods**:
+When querying the knowledge base, results are returned with:
 
-1. **stdio (Primary)**: JSON-RPC over standard input/output
-2. **localhost HTTP (Optional)**: REST API bound to 127.0.0.1 only
-3. **Unix Sockets (Alternative)**: Local filesystem-based IPC
+**Answer**: Generated by the selected LLM provider based on retrieved context
 
-**Local Endpoints** (if using HTTP mode):
+**Source Citations**: References to the original documents that informed the answer
 
-- `GET /context`: Retrieve relevant context for a query (localhost only)
-- `POST /index`: Trigger indexing of new documents (localhost only)
-- `GET /status`: Server health and statistics (localhost only)
-- `DELETE /clear`: Reset the database (localhost only)
+```
+📝 Answer:
+Memory consolidation is the process by which short-term memories are
+transformed into long-term memories through synaptic changes...
 
-**Response Format**:
-
-```json
-{
-  "results": [
-    {
-      "content": "Document chunk text...",
-      "metadata": { ... },
-      "score": 0.95
-    }
-  ],
-  "query": "Original query",
-  "total_results": 10
-}
+📄 Context sources:
+  [1] 8. Memory 2025F.txt: Memory consolidation occurs during sleep...
+  [2] 7. Learning 2025F.txt: The hippocampus plays a crucial role...
+  [3] 8. Memory 2025F.txt: Long-term potentiation (LTP) is...
 ```
 
-**Security**:
+**Privacy Note**:
 
-- Server binds exclusively to `127.0.0.1` (localhost)
-- No external network access configured
-- Firewall-friendly (no incoming connections from internet)
-- All processing happens in-process on your machine
+- Retrieved chunks (typically 2-4KB total) are sent to the LLM
+- Your full documents remain on your machine
+- Choose Ollama for zero external data transmission
 
 ---
 
 ## Development Roadmap
 
-### Milestone 1: Basic Indexing (Weeks 1-2)
+### Milestone 1: Basic Indexing (Week 1-2)
 
 - Complete file discovery and reading
 - Implement document chunking
 - Connect CLI to Python backend
 - Test with text files
+- Index command fully functional
 
-### Milestone 2: Query System (Weeks 3-4)
+### Milestone 2: Multi-Provider Query System (Week 3-4)
 
-- Build query command
-- Format and display results
-- Add ranking and filtering
-- Performance optimization
+- Build query command with provider switcher
+- Implement Ollama integration (local)
+- Implement OpenAI integration (cloud)
+- Implement Anthropic integration (cloud)
+- Add provider-specific error handling
+- Format and display results with source citations
 
-### Milestone 3: MCP Server (Weeks 5-6)
+### Milestone 3: Enhanced Features (Week 5-6)
 
-- Implement MCP protocol
-- Build server command
-- Test with LLM tools
-- Documentation and examples
+- Multi-format support (PDF, DOCX, Markdown)
+- Smart chunking algorithms
+- Configuration file support
+- Environment variable management
+- Progress indicators
+- Status command
 
-### Milestone 4: Production Ready (Weeks 7-8)
+### Milestone 4: Production Ready (Week 7-8)
 
-- Multi-format support
+- Incremental indexing
 - Error handling and recovery
-- Configuration system
-- Comprehensive testing
+- Comprehensive testing (unit + integration)
+- Performance optimization
 - User documentation
+- README with quick start examples
 
 ---
 
@@ -436,21 +527,21 @@ openbook/
 
 ### Scalability
 
-- **Small Projects**: < 100 files, in-memory mode
-- **Medium Projects**: 100-1000 files, persistent mode optional
-- **Large Projects**: 1000+ files, incremental updates, disk persistence
+- **Small Projects**: < 100 files (single run indexing)
+- **Medium Projects**: 100-1000 files (batch indexing with caching)
+- **Large Projects**: 1000+ files (consider incremental runs and cache pruning)
 
 ### Security & Privacy
 
-- **100% Local Processing**: All data stays on your machine—documents, embeddings, queries, and results
-- **No Network Calls**: Zero outbound requests after initial model download
+- **Documents Stay Local**: All documents, embeddings, and vector data remain on your machine
+- **Minimal Data Transmission**: When using cloud LLMs, only query + retrieved chunks are sent (not full documents)
 - **No Telemetry**: No usage statistics, crash reports, or analytics collected
-- **No Cloud Dependencies**: No AWS, Azure, Google Cloud, or OpenAI API calls
+- **User-Controlled Privacy**: Choose Ollama for 100% local execution with zero network calls
 - **Sandboxing**: Limit file system access to specified directories only
 - **Input Validation**: Sanitize file paths and query inputs to prevent injection attacks
-- **Localhost-Only Server**: MCP server never binds to external network interfaces (127.0.0.1 or stdio only)
+- **Secure API Key Management**: Cloud provider keys stored in environment variables, never in code
 - **No Data Retention**: Ephemeral mode deletes all indexed data on exit
-- **GDPR/HIPAA Friendly**: Since data never leaves your machine, compliance is simplified
+- **GDPR/HIPAA Friendly**: Documents never transmitted; compliance simplified even with cloud LLMs
 
 ### Compatibility
 
@@ -477,15 +568,18 @@ openbook/
     "overlap": 50
   },
   "database": {
-    "mode": "ephemeral",
-    "persist_directory": "~/.openbook/db",
     "collection": "openbook"
   },
-  "mcp": {
-    "mode": "stdio",
-    "localhost_port": 8080,
-    "bind_address": "127.0.0.1",
-    "max_results": 10
+  "query": {
+    "default_provider": "ollama",
+    "default_model": {
+      "ollama": "llama3",
+      "openai": "gpt-4",
+      "anthropic": "claude-3-5-sonnet-20241022"
+    },
+    "top_k": 4,
+    "temperature": 0.7,
+    "ollama_url": "http://127.0.0.1:11434"
   }
 }
 ```
@@ -496,7 +590,7 @@ openbook/
 - **Override**: Use `--config` flag to specify alternate config file
 - **Privacy**: No cloud sync—config stays on your machine
 - **Model Cache**: Downloaded models stored in `~/.openbook/models/`
-- **Database Storage**: Persistent mode uses `~/.openbook/db/` (optional)
+- **API Keys**: Stored in environment variables (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`)
 
 ---
 
@@ -505,51 +599,70 @@ openbook/
 ### Unit Tests
 
 - Embedding generation accuracy
-- Vector store operations
+- Vector store operations (add, search, delete)
 - File parsing and chunking
 - CLI argument parsing
+- Provider factory function
 
 ### Integration Tests
 
 - End-to-end indexing workflow
-- Query accuracy and relevance
-- MCP server requests
-- TypeScript-Python bridge
+- Query with Ollama provider
+- Query with OpenAI provider (requires API key)
+- Query with Anthropic provider (requires API key)
+- TypeScript-Python bridge communication
+- Error handling for missing API keys
 
 ### Performance Tests
 
-- Large directory indexing
-- Query response time
+- Large directory indexing (1000+ files)
+- Query response time across providers
 - Memory usage under load
-- Concurrent operations
+- Embedding batch processing speed
 
 ---
 
-## Future Enhancements (Maintaining Local-First Approach)
+## Future Enhancements
 
-### Advanced Features
+### Advanced Provider Features
+
+- **More LLM Providers**: Add support for Cohere, Google AI, Mistral API
+- **Local Model Management**: Built-in Ollama model download and management
+- **Provider Fallback**: Automatically switch providers if one fails
+- **Streaming Responses**: Real-time token streaming for cloud providers
+- **Cost Tracking**: Monitor API usage and costs for cloud providers
+
+### Advanced RAG Features
 
 - **Semantic Caching**: Reuse embeddings for unchanged files (stored locally)
-- **Multi-Modal**: Support images, code, structured data (processed locally)
-- **Local Collaborative**: Shared indexes via local network (optional LAN-only feature)
-- **Local Analytics**: Usage tracking stored on your machine only (opt-in)
-- **GPU Acceleration**: Faster embedding generation using local GPU
+- **Hybrid Search**: Combine semantic and keyword search
+- **Multi-Modal**: Support images, code, structured data
+- **Reranking**: Improve relevance with cross-encoder reranking
+- **Query Expansion**: Automatic query reformulation for better results
 
-### Integration (All Local)
+### Integration Features
 
 - **Git Integration**: Auto-index on commit (local git hooks)
-- **IDE Plugins**: VSCode, JetBrains extensions (local extensions)
-- **Local Web UI**: Browser-based interface at localhost:port
-- **Local API**: RESTful access bound to 127.0.0.1 only
-- **Watch Mode**: Auto-reindex on file changes (local file system monitoring)
+- **IDE Plugins**: VSCode, JetBrains extensions
+- **Web UI**: Browser-based interface at localhost:port
+- **Watch Mode**: Auto-reindex on file changes
+- **Export/Import**: Share index snapshots (without original documents)
 
-### AI Features (Using Local Models)
+### AI-Powered Features
 
-- **Auto-Summarization**: Generate document summaries (using local LLMs like Ollama)
-- **Entity Extraction**: Identify key concepts (local NLP models)
-- **Question Generation**: Create Q&A pairs (local transformer models)
-- **Cross-References**: Link related documents (local graph algorithms)
-- **Local OCR**: Extract text from images/PDFs (Tesseract or similar local tools)
+- **Auto-Summarization**: Generate document summaries using your chosen LLM
+- **Entity Extraction**: Identify key concepts and entities
+- **Question Generation**: Create Q&A pairs from documents
+- **Cross-References**: Automatically link related documents
+- **OCR Support**: Extract text from images/PDFs (Tesseract)
+
+### Enterprise Features
+
+- **Persistent Storage**: Optional disk-based vector store (SQLite + ChromaDB)
+- **Multi-Collection**: Manage multiple isolated knowledge bases
+- **Access Control**: Basic auth for shared deployments
+- **Audit Logging**: Track queries and access (stored locally)
+- **Batch Processing**: Queue multiple documents for indexing
 
 ---
 
@@ -557,17 +670,26 @@ openbook/
 
 ### User Experience
 
-- < 5 seconds for first query after indexing
-- < 1 second for subsequent queries
+- < 5 seconds for first query after indexing (any provider)
+- < 1 second for local similarity search
 - > 90% relevance for top-3 results
 - < 5 minute setup time for new users
+- Easy provider switching with single flag
 
 ### Technical
 
 - 100% test coverage for core modules
 - < 100MB memory for 1000 documents
 - 0 data loss on crashes
-- Compatible with all major LLM tools
+- Support for 3+ LLM providers (Ollama, OpenAI, Anthropic)
+- Clear error messages for missing API keys
+
+### Privacy & Security
+
+- Documents never transmitted in full
+- API keys stored securely in environment variables
+- Zero telemetry or tracking
+- Transparent data flow in documentation
 
 ---
 
@@ -589,23 +711,22 @@ openbook/
 
 ---
 
-## Frequently Asked Questions (Local Execution)
+## Frequently Asked Questions
 
 ### Q: Does OpenBook require an internet connection?
 
-**A**: Only once, during initial setup to download the MiniLM-L6-v2 model (~90MB). After that, it works completely offline.
+**A**: It depends on your LLM provider choice:
+
+- **Ollama (local)**: Only once, to download the MiniLM-L6-v2 embedding model (~90MB) and your chosen Ollama model. After that, it works completely offline.
+- **OpenAI/Anthropic (cloud)**: Requires internet during queries to call the API, but indexing is still local.
 
 ### Q: Will my documents ever be sent to the cloud?
 
-**A**: Never. All documents, embeddings, and queries are processed locally on your machine. There are no cloud services involved.
-
-### Q: What does "MCP server" mean? Is it exposed to the internet?
-
-**A**: No! The MCP server is a local-only interface that uses stdio (standard input/output) or localhost (127.0.0.1). It never binds to external network interfaces and is not accessible from the internet.
+**A**: No, never. Your full documents always stay on your machine. When using cloud LLMs, only your query and the retrieved context chunks (typically 2-4KB) are sent to the API. The full documents are never transmitted.
 
 ### Q: Can I use OpenBook in an air-gapped environment?
 
-**A**: Yes! Once the embedding model is cached (after first run with internet), OpenBook works perfectly in completely offline/air-gapped environments.
+**A**: Yes! Use Ollama as your provider for 100% local execution. Once models are cached (after first run with internet), OpenBook works perfectly offline.
 
 ### Q: Does OpenBook collect any telemetry or usage data?
 
@@ -613,47 +734,68 @@ openbook/
 
 ### Q: What happens to my data when I close OpenBook?
 
-**A**: By default (ephemeral mode), the vector database is deleted on exit. You can enable persistent mode if you want to keep the index between sessions—it will be stored locally at `~/.openbook/db`.
-
-### Q: Can other people on my network access my indexed documents?
-
-**A**: No. The MCP server binds only to localhost (127.0.0.1) by default, making it accessible only from your machine.
+**A**: The vector database lives entirely in memory and is cleared as soon as the CLI exits. Re-run the index command whenever you need a fresh session.
 
 ### Q: How is this different from cloud-based RAG solutions?
 
-**A**: Cloud solutions send your documents to remote servers for processing. OpenBook processes everything locally, giving you complete privacy, zero ongoing costs, and no reliance on external services.
+**A**: Cloud RAG solutions send your entire documents to remote servers for indexing and storage. OpenBook indexes documents locally—your full documents never leave your machine. You can even choose Ollama for 100% local LLM execution.
 
 ### Q: What are the hardware requirements?
 
-**A**: Minimal! OpenBook runs on CPU (no GPU required). For optimal performance: 4GB+ RAM, 500MB disk space for models, and any modern CPU from the last 5 years.
+**A**: Minimal! OpenBook's indexing runs on CPU (no GPU required). For optimal performance: 4GB+ RAM, 500MB disk space for models, and any modern CPU from the last 5 years. If using Ollama, you'll need additional resources based on your chosen model.
 
 ### Q: Can I use custom embedding models?
 
-**A**: Yes! While MiniLM-L6-v2 is the default (optimized for speed and size), you can configure any model from the sentence-transformers library. All models run locally.
+**A**: Yes! While MiniLM-L6-v2 is the default (optimized for speed and size), you can configure any model from the sentence-transformers library. All embedding models run locally.
+
+### Q: Which LLM provider should I choose?
+
+**A**:
+
+- **Ollama**: Best for privacy, offline work, and cost-free operation. Slightly slower responses.
+- **OpenAI**: Fast responses, high quality, requires API key and costs money per query.
+- **Anthropic**: Excellent for complex reasoning, requires API key and costs money per query.
+
+### Q: How much does it cost to use cloud providers?
+
+**A**: With cloud providers, you pay per API call:
+
+- **OpenAI**: ~$0.01-0.03 per query (depending on model)
+- **Anthropic**: ~$0.01-0.02 per query (depending on model)
+- **Ollama**: $0.00 (completely free, runs locally)
 
 ---
 
 ## Conclusion
 
-OpenBook bridges the gap between local knowledge bases and modern LLM tooling—all while keeping your data completely private on your machine. By providing ephemeral, fast, and 100% local document indexing with MCP integration, it enables developers and researchers to augment their AI workflows with secure, context-rich information retrieval.
+OpenBook provides a flexible, privacy-first approach to RAG-powered document search. By keeping your documents local while offering choice in LLM providers, it gives you control over both your data and your workflow.
 
 ### Key Differentiators
 
-- **Privacy-First**: Your documents never leave your computer—no cloud, no APIs, no tracking
-- **Offline-Ready**: Works fully offline after initial model download
+- **Documents Stay Private**: Your full documents never leave your machine—indexing and embedding generation happen locally
+- **LLM Flexibility**: Choose between fully local (Ollama), or cloud providers (OpenAI, Anthropic)
+- **Simple CLI**: Easy-to-use command-line interface with clear provider options
 - **Open Source**: Transparent codebase you can audit and modify
-- **Fast**: Local processing means low latency and no rate limits
-- **Cost-Free**: No subscription fees or API costs—run unlimited queries
+- **Cost Control**: Use Ollama for $0 per query, or cloud providers when you need top-tier performance
+- **No Telemetry**: Zero tracking or analytics
 
-The modular architecture ensures extensibility, while the unwavering local-first approach guarantees privacy, security, and performance. With a clear roadmap and solid technical foundation built on proven local technologies (Node.js, Python, ChromaDB, sentence-transformers), OpenBook is positioned to become an essential tool in the local-first RAG ecosystem.
+The modular architecture ensures extensibility, with a clear separation between document processing (always local) and LLM inference (your choice). Built on proven technologies (Node.js, Python, ChromaDB, LangChain, sentence-transformers), OpenBook makes RAG accessible without forcing you into a single approach.
 
 ### Perfect For
 
-- 🔒 **Privacy-Conscious Users**: Lawyers, doctors, researchers handling sensitive data
-- 💻 **Offline Workers**: Developers in air-gapped environments or with unreliable internet
-- 💰 **Cost-Conscious Teams**: No per-query costs or monthly subscriptions
-- 🏢 **Enterprise**: Deploy on-premises with zero data exfiltration risk
+- 🔒 **Privacy-Conscious Users**: Lawyers, doctors, researchers handling sensitive data who want documents to stay local
+- 💻 **Flexible Developers**: Use Ollama for development, cloud APIs for production—switch anytime
+- 💰 **Cost-Conscious Teams**: Start with free Ollama, scale to cloud when needed
+- 🏢 **Enterprise**: Documents never transmitted; use local or cloud LLMs based on policy
 - 🌍 **Open Source Advocates**: Transparent, auditable, and community-driven
+
+### Use Cases
+
+- **Local-First Research**: Index papers and notes locally, query with Ollama
+- **Development Docs**: Quick RAG over codebases, API docs, internal wikis
+- **Hybrid Workflows**: Index sensitive docs locally, query with your preferred LLM
+- **Education**: Students can build a personal knowledge base for studying
+- **Content Analysis**: Journalists, writers analyzing document collections
 
 ---
 

@@ -1,32 +1,123 @@
-import { Command } from "commander";
+import { Command, InvalidArgumentError } from "commander";
+import figlet from "figlet";
+import path from "path";
 
-const figlet = require("figlet");
+import { indexDocuments } from "./commands/indexDocuments";
 
-const fs = require("fs");
-
-const path = require("path");
-
-const program = new Command()
+const program = new Command();
 
 console.log(figlet.textSync("openbook"));
 
 program
-    .version("1.0.0")
-    .description("A CLI for indexing your knowledge base as LLM context")
-    .option("-i, --index <directory>", "The directory to index")
-    .option("-s, --serve", "Start the MCP server")
-    .option("-q, --query <query>", "Query the indexed files")
-    .option("-status, --status", "Server status")
-    .parse(process.argv);
+    .name("openbook")
+    .description("Local-first CLI for indexing documents into a private RAG knowledge base")
+    .version("1.0.0");
 
-const options = program.opts();
+program
+    .command("index")
+    .description("Index documents in a directory and cache embeddings locally")
+    .argument("<directory>", "Directory of documents to index")
+    .option("-r, --recursive", "Include subdirectories", false)
+    .option("--chunk-size <number>", "Chunk size in characters", parsePositiveInt)
+    .option("--overlap <number>", "Character overlap between chunks", parseNonNegativeInt)
+    .option("--ext <extensions...>", "Allowed file extensions (e.g. .md .txt)")
+    .action(async (directory: string, options) => {
+        const resolvedDirectory = path.resolve(directory);
 
-async function indexDirectory(directory: string) {
-    try {
-        const files = await fs.promises.readdir(directory);
-        for (const file of files) {
-            const filePath = path.join(directory, file);
+        try {
+            const chunkCount = await indexDocuments({
+                sourceDir: resolvedDirectory,
+                recursive: Boolean(options.recursive),
+                chunkSize: options.chunkSize,
+                overlap: options.overlap,
+                allowedExtensions: normalizeExtensions(options.ext),
+            });
 
+            console.log(
+                chunkCount === 0
+                    ? `No eligible documents found in ${resolvedDirectory}`
+                    : `Indexed ${chunkCount} chunk${chunkCount === 1 ? "" : "s"} from ${resolvedDirectory}`,
+            );
+        } catch (error) {
+            handleCliError("index", error);
         }
-    } catch (error) {
+    });
+
+program
+    .command("serve")
+    .description("Start the local MCP server (coming soon)")
+    .action(() => {
+        console.warn("The serve command is not implemented yet. Stay tuned!");
+    });
+
+program
+    .command("query")
+    .description("Query the indexed knowledge base (coming soon)")
+    .argument("<query>", "Query string to search for")
+    .action((query: string) => {
+        void query;
+        console.warn("Querying is not implemented yet. Use the index command to prepare data first.");
+    });
+
+program
+    .command("status")
+    .description("Show the current index and server status (coming soon)")
+    .action(() => {
+        console.warn("Status reporting not implemented yet.");
+    });
+
+program
+    .hook("preAction", () => {
+        // Placeholder for future initialization (vector store, config, etc.).
+    });
+
+program
+    .hook("postAction", () => {
+        // Placeholder for cleanup, e.g., flushing persisted state.
+    });
+
+program.parseAsync(process.argv).catch((error) => {
+    handleCliError("cli", error);
+});
+
+function normalizeExtensions(input?: string[] | string): string[] | undefined {
+    if (!input) {
+        return undefined;
+    }
+
+    const values = Array.isArray(input) ? input : [input];
+    const normalized = values
+        .map((value) => value.trim().toLowerCase())
+        .filter((value) => value.length > 0)
+        .map((value) => (value.startsWith(".") ? value : `.${value}`));
+
+    return normalized.length > 0 ? Array.from(new Set(normalized)) : undefined;
+}
+
+function parsePositiveInt(value: string): number {
+    const parsed = Number.parseInt(value, 10);
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+        throw new InvalidArgumentError("Expected a positive integer.");
+    }
+    return parsed;
+}
+
+function parseNonNegativeInt(value: string): number {
+    const parsed = Number.parseInt(value, 10);
+    if (!Number.isFinite(parsed) || parsed < 0) {
+        throw new InvalidArgumentError("Expected a non-negative integer.");
+    }
+    return parsed;
+}
+
+function handleCliError(context: string, error: unknown): void {
+    if (error instanceof Error) {
+        console.error(`[${context}] ${error.message}`);
+        if (process.env.DEBUG) {
+            console.error(error.stack);
+        }
+    } else {
+        console.error(`[${context}] Unexpected error`, error);
+    }
+    process.exitCode = 1;
 }

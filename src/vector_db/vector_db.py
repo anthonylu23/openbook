@@ -16,7 +16,6 @@ class ChromaVectorStore:
     def __init__(
         self,
         collection_name: str = "openbook",
-        persist_directory: Optional[str] = None,
         embedding_function: Optional[Any] = None,
         client_settings: Optional[Any] = None,
         metadata: Optional[Dict[str, Any]] = None,
@@ -24,7 +23,7 @@ class ChromaVectorStore:
         self._collection_name = collection_name
         self._embedding_function = embedding_function
         self._metadata = metadata
-        self._client = self._build_client(persist_directory, client_settings)
+        self._client = self._build_client(client_settings)
         self._collection = self._client.get_or_create_collection(
             name=collection_name,
             metadata=metadata,
@@ -32,12 +31,8 @@ class ChromaVectorStore:
         )
 
     @staticmethod
-    def _build_client(
-        persist_directory: Optional[str], client_settings: Optional[Any]
-    ) -> Any:
-        if persist_directory:
-            return chromadb.PersistentClient(path=persist_directory, settings=client_settings)
-        return chromadb.Client(settings=client_settings)
+    def _build_client(client_settings: Optional[Any]) -> Any:
+        return chromadb.EphemeralClient(settings=client_settings)
 
     @property
     def client(self) -> Any:
@@ -162,10 +157,6 @@ class ChromaVectorStore:
 
     def count(self) -> int:
         return self._collection.count()
-
-    def persist(self) -> None:
-        if hasattr(self._client, "persist"):
-            self._client.persist()
 
     def reset_collection(self) -> None:
         self._client.delete_collection(self._collection_name)

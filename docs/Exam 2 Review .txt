@@ -1,0 +1,1028 @@
+Exam 2 Review 
+Fall 2025
+Yayun Zheng
+
+1
+
+Exam structure
+
+2
+
+Taking the exam in recitation
+
+◉ Exam will be during your recitations (unless you have contacted 
+
+us and/or Moses to indicate otherwise)
+
+◉ Your recitation leaders need both your exams and your 
+
+scantrons in order to give you a grade
+
+◉ You should have plenty of time
+
+3
+
+Academic Honesty
+
+You may use: 
+
+● Your notes
+
+You may NOT use: 
+
+● Each other
+
+● Lecture slides
+
+● Any outside digital source:
+
+● Textbook
+
+● Book
+
+● Electronic devices: 
+
+smartphones/laptops/ 
+ipads
+● Internet
+● AI, LLMs , etc
+
+4
+
+Exam structure/content
+
+Multiple Choice (MC) – 60 points
+
+Open-Ended Questions – 40 points 
+
+◉ 20+1 Questions, each worth 3 points 
+
+◉ 2 open-ended questions, each 
+
+◉ Each question has 4 answer options 
+
+worth 20 points 
+
+– only one is correct
+
+◉ Make sure to answer ALL parts 
+
+◉ If unsure, choose the option that you 
+think is the best option out of the 4
+
+◉ Bonus question from Power of Us
+
+of the question
+
+◉ Point breakdowns will be 
+indicated on your exam
+
+Content: From lectures AND readings, but more emphasis on the lectures
+
+5
+
+For this review
+
+I recommend having a piece 
+of scrap paper and actually 
+writing down your answers 
+to each question. 
+
+That way, you can get an 
+objective measure of your 
+preparedness.
+
+6
+
+Quick review
+
+Of the lectures so far…
+
+7
+
+Topics covered since Exam 1
+
+◉ Learning 
+
+◉ Memory
+
+◉ Decision making 1
+
+◉ Decision making 2 
+(guest lecture)
+
+◉ Project Nim
+
+◉ Development 1 
+
+◉ Development 2 
+
+◉ Language 1 
+
+◉ Language 2 
+
+8
+
+Lecture 7
+Learning
+
+Lecture 7: Learning 
+
+Respond (basic hardware), predict (pavlovian software), & 
+operate (skinnerian software)
+
+Responding: 
+•
+•
+•
+
+Sensation – the ability to discriminate stimuli 
+Reflex – hardwired stimulus-response circuits
+Habituation – the circuit breaker 
+
+Predicting: run before the cat sees you
+•
+
+Classical conditioning (Pavlov)
+
+•
+
+•
+
+•
+
+10
+
+7.1 Classical conditioning
+
+•
+
+1) Learn associations
+
+• Unconditioned stimulus (cid:0) unconditioned 
+
+response (innate, reflex)
+
+• Conditioned stimulus (cid:0) conditioned response
+
+2) Learn sloppily→Generalization: take what 
+you learned in a situation and extend it to 
+other similar things (little Albert)
+
+•
+
+•
+
+11
+
+7.1 Classical conditioning
+
+•
+
+•
+
+•
+
+•
+
+•
+
+3) Learn sparingly →Blocking – learning one pattern of relationships rather 
+than many
+
+*First learned association “blocks” future ones
+4) Learn slowly →Latent inhibition
+
+5) Unlearn slowly →Extinction: previously learned association is 
+weakened when pattern is broken
+
+6) Relearn quickly →Spontaneous recovery: after extinction, can relearn 
+pattern more quickly
+
+12
+
+7.2 Operant conditioning
+
+•
+
+•
+
+Repeat what works (law of effect): 
+•
+•
+
+If I do something and something good happens, do that again
+If I do something and something bad happens, don’t do it 
+again
+
+Schedules of reinforcement 
+
+•
+
+•
+
+Ratio: reward is a function of the number 
+of times action is performed.
+Interval: reward is a function of how 
+long since the last reward.
+
+•
+
+•
+
+Fixed: the ratio or interval is always the 
+same 
+Variable: ratio or interval averages to a 
+certain value.
+
+13
+
+Lecture 8
+Memory
+
+Lecture 8: Memory
+
+•
+
+Sensory memory: short-term (a few seconds or less)
+•
+•
+
+Iconic – visual memory
+Echoic – auditory memory 
+
+• Working memory 
+Currently active 
+Limited capacity: 7 +/- 2 
+
+•
+•
+Long term memory 
+•
+•
+
+Explicit – semantic & episodic
+Implicit – priming & procedural 
+
+•
+
+15
+
+8.1 Explicit memory
+
+• Distributed representation
+•
+
+Semantic memory: factual knowledge 
+•
+Episodic memory: what you did on Sat. night
+
+Lexical decision task: linked in memory -> fast
+
+•
+•
+
+Retrieval: recreating the pattern of neurons that was 
+created by those experiences 
+•
+
+Retrieval cues serve as “seeds” 
+
+16
+
+8.1 Explicit memory
+
+● Consequences of distributed representations:
+
+•
+
+•
+
+Levels of processing 
+
+Memory is better when encoding emphasizes 
+“deep” aspects of a stimulus (such as meaning) 
+vs. “shallow” aspects of a stimulus (such as 
+place)
+
+Encoding specificity
+
+you will remember better if the way you first 
+encoded the information is consistent with the 
+way you’ll eventually try to remember it
+
+17
+
+8.1 Explicit memory
+
+● Consequences of distributed representations:
+
+• Context dependence
+
+→ you will remember better if you are 
+physically located in the same place you 
+learned something
+
+State-dependent memory: not the physical 
+place, but the psychological state 
+
+18
+
+8.2 Implicit memory
+
+Priming 
+
+Procedural memory
+
+•
+•
+• Anterograde amnesia: cannot form new memories since brain injury
+•
+Retrograde amnesia: cannot remember the past up until the brain 
+injury
+
+•
+
+Patient H.M. is really bad at recall and recognition (explicit), but still 
+has implicit memories
+
+19
+
+Lecture 9
+Decision making
+
+9.1 Expected Utility Theory
+
+• As a decision-maker, your job is to maximize value 
+•
+
+Two kinds of errors: 
+•
+Errors of odds
+•
+Errors of valuation 
+•
+Expected value = odds of gain X value of gain 
+
+21
+
+9.2 Errors of odds
+
+•
+
+•
+
+•
+•
+
+•
+
+Sample size neglect - larger samples will be less likely to show deviations from 
+chance or from the normal rate
+
+Gambler’s fallacy - belief that the likelihood of a chance event is influenced by the 
+nature of the events that preceded it 
+
+Conjunction fallacy – probability of X is always higher than probability of X and Y
+
+Availability bias - tendency to think that examples of things that come readily to mind 
+are more representative than is actually the case
+
+Planning Fallacy - underestimate the time it will take to complete a future task, 
+despite knowledge that previous tasks have generally taken longer than planned
+
+22
+
+9.3 Errors of valuation
+
+•
+
+•
+
+•
+
+•
+
+Presentism – tendency to overweight things that are present in mind right now 
+Delay of gratification- holding out now for better outcomes later
+
+Endowment effect – application of prospect theory with respect to ownership 
+(losses loom larger than gains)
+
+Temporal discounting – discounting the value of something if it’s further away in 
+time 
+
+Comparing to the past – preferring the option that shows gradual increase from 
+the past 
+
+23
+
+Lecture 10
+Development 1 & 2 
+
+10.1 Preformationism
+
+•
+
+•
+
+But children do learn and the environment plays a great role 
+
+Preformationism = babies and children are just unformed adults 
+•
+Freud’s psychosexual stages of development 
+•
+•
+
+Believed that life was built around tension and pleasure
+Stressed the importance of the first 5 years of life for the formation of adult 
+personality
+Freud was wrong about the specifics of each stage and his ideas about children’s 
+sexual obsessions with their parents 
+
+•
+
+25
+
+10.2 Piaget’s theory of cognitive 
+development
+
+- Children are not just “little adults” who know less; children just think 
+
+and speak differently 
+
+•
+
+Schema: An action sequence governed by a core meaning (the basic 
+building blocks of our mental models)
+
+• Assimilation: how children translate information into a form they can 
+
+understand (fit something to their current models)
+
+• Accommodation: how children revise current knowledge in response 
+
+to new experiences (create new models)
+
+26
+
+10.2 Piaget’s Stages of Cognitive 
+Development
+
+•
+
+Sensorimotor stage: sensation + motion (birth to 2 years)
+
+•
+
+•
+
+“being in the moment” (cid:0) object permanence : out of sight = stopped 
+existing 
+“A not B” error: cannot follow paths of motion to retrieve objects and 
+repeat previously successful actions even if no longer appropriate
+
+•
+
+Preoperational (2-6 years)
+
+•
+•
+
+Failures of conservation (number, liquid & solid quantity)
+Failures of egocentricity: inability to take perspective of another
+
+• Concrete operational (6 – 12 years) 
+
+•
+
+Logical failures: formal logic
+
+•
+
+Formal operational (12 and beyond)
+• Adult-like reasoning 
+
+27
+
+Lecture 11
+Language
+
+lecture 11: Language
+
+● Semantics => meaning 
+● Phonology => how words get encoded in sounds and those sounds 
+
+are understood and learned 
+
+● Syntax => putting many words together to make complex units like 
+
+sentences
+
+● Pragmatics => ways in which we use language in real-life contexts 
+and the assumptions that we make about speakers’ intentions that 
+help us interpret what they mean
+
+29
+
+11.1 Semantics
+
+● Words have an arbitrary, conventional relationship to their 
+
+meanings 
+
+● Meaning has to be learned from people (e.g. there is nothing 
+
+subway-like about the subway)
+
+● Average college student knows between 45,000 – 60,000 
+
+words
+
+● Language differs according to the environment
+
+30
+
+11.1 Reference problem
+
+• How do children know what object to associate with a word?
+
+Social referencing: follow other people’s gaze
+
+1.
+2. Novelty matching: children won’t attach a new word to something they already have a 
+
+3.
+
+name for
+Intentionality: word only indicates meaning when you’re doing it intentionally, not when it 
+happens by accident
+
+4. Category assumption: children tend to assume basic category
+
+31
+
+11.2 Phonology
+
+• Detection and discrimination 
+•
+• Neither of these require spoken language – it can be sign language 
+
+Production 
+
+32
+
+11.3 Syntax
+
+•
+
+Collection of rules that allows us to string together individual words and make 
+complex utterances with different meanings
+
+• Noam Chomsky: languages are in fact “the same” (cid:0) differences in languages are all of a 
+
+•
+
+Syntax of all languages are just simple variants of one system 
+
+certain few types
+•
+• Demonstrated that language is not just behaviorism 
+Grammar and meaning can be totally separated: “Colorless green ideas sleep 
+furiously”
+•
+
+Broca’s Aphasia: problems with syntax, but not meaning; can understand others’ 
+speech but cannot talk
+
+• Wernicke’s aphasia: problems with meaning but not syntax; can talk but not 
+
+understand others’ speech
+
+33
+
+How do children understand 
+syntax?
+
+Instruction
+
+•
+•
+• Conditioning/reinforcement
+
+Imitation 
+
+34
+
+How do children understand 
+syntax?
+
+Instruction
+
+•
+•
+• Conditioning/reinforcement
+
+Imitation 
+
+Language system that is ready to “take off” as soon as it gets 
+normal input, i.e. surround it with normal adult language speakers 
+•
+
+Sensitive period for syntax (example: Genie)
+
+35
+
+11.4 Pragmatics
+
+◉ Principle of charity: you will assume I am being truthful and 
+
+informative; you will assume my goal is to communicate, and this 
+helps you make sense of what would otherwise be hard to interpret 
+or ambiguous sentences.
+
+◉ Prosody/tone of voice: 
+
+36
+
+Why language matters
+
+•
+
+Linguistic relativity (Sapir-Whorf hypothesis)
+
+structure of a language determines a native speaker’s 
+perception and categorization of experience 
+
+37
+
+Questions?
+
+Multiple Choice Practice
+
+These questions are intended only to familiarize you with the format of the 
+multiple choice questions on the exam. They do NOT cover all of the material 
+you are expected to know. Studying these topics and nothing else will not 
+sufficiently prepare you for the exam.
+
+Your dog loves to go for a walk. He starts to wag his tail as soon as you 
+get the leash from the cupboard. This is an example of:
+
+A. Negative Reinforcement
+B. Operant Reinforcement
+C. Classical Conditioning
+D. Negative Punishment
+
+Your dog loves to go for a walk. He starts to wag his tail as soon as you 
+get the leash from the cupboard. This is an example of:
+
+A. Negative Reinforcement
+B. Operant Reinforcement
+C. Classical Conditioning
+D. Negative Punishment
+
+What is the leash in this example?
+
+A. Unconditioned stimulus
+B. Conditioned stimulus
+C. Unconditioned response
+D. Conditioned response
+
+What is the leash in this example?
+
+A. Unconditioned stimulus
+B. Conditioned stimulus
+C. Unconditioned response
+D. Conditioned response
+
+Under a  _______, reinforcement is delivered after a specific 
+number of responses have been made.
+
+A. Fixed Ratio Schedule
+B. Variable Interval Schedule
+C. Fixed Interval Schedule
+D. Variable Ratio Schedule
+
+Under a  _______, reinforcement is delivered after a specific 
+number of responses have been made.
+
+A. Fixed Ratio Schedule
+B. Variable Interval Schedule
+C. Fixed Interval Schedule
+D. Variable Ratio Schedule
+
+Receiving a paycheck every two weeks is an example of which 
+of the following schedules of reinforcement?
+
+A. Fixed Ratio 
+B. Variable Ratio
+C. Continuous
+D. Fixed interval
+
+Receiving a paycheck every two weeks is an example of which 
+of the following schedules of reinforcement?
+
+A. Fixed Ratio 
+B. Variable Ratio
+C. Continuous
+D. Fixed interval
+
+Which of the following is an example of semantic memory?  “I 
+remember...
+
+A. …I had a sandwich for lunch”
+B. …Prague is the capital of Czech Republic”
+C. …I saw my friend in the library”
+D. …how to ride a bike”
+
+Which of the following is an example of semantic memory?  “I 
+remember...
+
+A. …I had a sandwich for lunch”
+B. …Prague is the capital of Czech Republic”
+C. …I saw my friend in the library”
+D. …how to ride a bike”
+
+A nursery school teacher showed her class of 3-year-olds an M&M box 
+and opened it to reveal pencils instead of candy. Then she closed the 
+box and asked the children what another person—who had not seen 
+inside—would think is inside. The children would likely say:
+
+A. M&Ms
+B. Playdoh
+C. Pencils
+D. They don’t know
+
+A nursery school teacher showed her class of 3-year-olds an M&M box 
+and opened it to reveal pencils instead of candy. Then she closed the 
+box and asked the children what another person—who had not seen 
+inside—would think is inside. The children would likely say:
+
+A. M&Ms
+B. Playdoh
+C. Pencils
+D. They don’t know
+
+As children acquire the grammatical rules of their language, 
+they tend to overgeneralize those rules. This results in 
+predictable speech errors around the age of 4 or 5, such as:
+
+A. “You runned.”
+B. “You ran.”
+C. “Run you.”
+D. “Ran you”
+
+As children acquire the grammatical rules of their language, 
+they tend to overgeneralize those rules. This results in 
+predictable speech errors around the age of 4 or 5, such as:
+
+A. “You runned.”
+B. “You ran.”
+C. “Run you.”
+D. “Ran you”
+
+Piaget called the incorporation of new 
+objects into existing knowledge:
+
+a. Assimilation
+b. Object permanence
+c. Conservation
+d. Accommodation
+
+Piaget called the incorporation of new 
+objects into existing knowledge:
+
+a. Assimilation
+b. Object permanence
+c. Conservation
+d. Accommodation
+
+A child is used to riding her own bicycle. Then she tries her 
+friend’s bike, which is slightly larger. Piaget would call the 
+changes she makes in her riding when she tries to ride her 
+friend’s bike:
+
+a. Assimilation
+b. Accommodation
+c. Adjustment
+d. Insight
+
+A child is used to riding her own bicycle. Then she tries her 
+friend’s bike, which is slightly larger. Piaget would call the 
+changes she makes in her riding when she tries to ride her 
+friend’s bike:
+
+a. Assimilation
+b. Accommodation
+c. Adjustment
+d. Insight
+
+In what stage can an individual consider abstract ideas and 
+hypothetical concepts?
+
+a. conservation
+b. concrete operational
+c. preoperational
+d. formal operational
+
+In what stage can an individual consider abstract ideas and 
+hypothetical concepts?
+
+a. conservation
+b. concrete operational
+c. preoperational
+d. formal operational
+
+Memory researchers recommend that you match your studying 
+environment as closely as possible to your testing environment to 
+optimize recall. For example, if you take your exam in a quiet room with 
+many other people, it is best to study in the library where it is quiet 
+with many other people around you. This illustrates the concept of:
+
+A. Deep processing
+B. Shallow processing
+C. Context dependence
+D. Encoding specificity
+
+Memory researchers recommend that you match your studying 
+environment as closely as possible to your testing environment to 
+optimize recall. For example, if you take your exam in a quiet room with 
+many other people, it is best to study in the library where it is quiet 
+with many other people around you. This illustrates the concept of:
+
+A. Deep processing
+B. Shallow processing
+C. Context dependence
+D. Encoding specificity
+
+Children often use incorrect grammar, such as when they say “runned” 
+or “swimmed” instead of “ran” or “swam” despite clearly never hearing 
+other adults use such words around them. This provides evidence 
+against ______ as a syntax learning mechanism.
+
+A. Instruction
+B. Imitation
+C. Reinforcement
+D. Universal grammar
+
+Children often use incorrect grammar, such as when they say “runned” 
+or “swimmed” instead of “ran” or “swam” despite clearly never hearing 
+other adults use such words around them. This provides evidence 
+against ______ as a syntax learning mechanism.
+
+A. Instruction
+B. Imitation
+C. Reinforcement
+D. Universal grammar
+
+All of the following represent components of natural 
+language use except _________
+
+A. Syntax
+B. Pragmatics
+C. Mnemonics
+D. Semantics
+
+All of the following represent components of natural 
+language use except _________
+
+A. Syntax
+B. Pragmatics
+C. Mnemonics
+D. Semantics
+
+The term conservation refers to the fact that:
+
+a.
+
+the amount of a substance remains the same even though its shape 
+changes
+
+b. children see and think about the world from other people’s viewpoints
+c.
+infants interact with and learn about their environment through sensory 
+experiences
+
+d. symbols and words can be used to think about things that do not exist
+
+The term conservation refers to the fact that:
+
+a. the amount of a substance remains the same even though its shape 
+
+changes
+
+b. children see and think about the world from other people’s viewpoints
+c.
+infants interact with and learn about their environment through sensory 
+experiences
+
+d. symbols and words can be used to think about things that do not exist
+
+According to expected utility theory, if I tell you that I will pay 
+you $12 if you roll a 3 on a dice, up to how much should you 
+rationally be willing to pay to play the game?
+
+a. $1
+b. $3
+c. $5
+d. $7
+
+According to expected utility theory, if I tell you that I will pay 
+you $12 if you roll a 3 on a dice, up to how much should you 
+rationally be willing to pay to play the game?
+
+a. $1
+b. $3
+c. $5
+d. $7
+
+Expected Utility Theory
+
+If it comes up 3 I’ll give 
+you $12. 
+
+Expected Value = 
+
+Odds of Gain x Value of Gain
+
+(1/6)         x
+
+($12)  = $2
+
+In classical conditioning, an unlearned, inborn reaction to an 
+unconditioned stimulus is a(n)
+
+A. Unconditioned stimulus
+B. Conditioned stimulus
+C. Unconditioned response
+D. Conditioned response
+
+In classical conditioning, an unlearned, inborn reaction to an 
+unconditioned stimulus is a(n)
+
+A. Unconditioned stimulus
+B. Conditioned stimulus
+C. Unconditioned response
+D. Conditioned response
+
+The sentence “The green apple drank a juicy bug ferociously” is 
+an illustration that:
+
+A. Syntax and pragmatics are separate
+B. Phonetics and syntax are separate
+C. Syntax and semantics are separate
+D. Semantics and pragmatics are separate
+
+The sentence “The green apple drank a juicy bug ferociously” is 
+an illustration that:
+
+A. Syntax and pragmatics are separate
+B. Phonetics and syntax are separate
+C. Syntax and semantics are separate
+D. Semantics and pragmatics are separate
+
+Parents usually reward their children when they say a 
+sentence that makes semantic sense but not when they say a 
+sentence that makes grammatical sense. This provides 
+evidence against ______ as a syntax learning mechanism.
+
+A. Instruction
+B. Imitation
+C. Reinforcement
+D. Universal grammar
+
+Parents usually reward their children when they say a 
+sentence that makes semantic sense but not when they say a 
+sentence that makes grammatical sense. This provides 
+evidence against ______ as a syntax learning mechanism.
+
+A. Instruction
+B. Imitation
+C. Reinforcement
+D. Universal grammar
+
+Memory researchers recommend that you match your studying 
+technique as closely as possible to the way you will be tested on the 
+material. For example, if your exam will be entirely long-answer 
+questions, it is best to study by practicing answering long-answer 
+questions. This illustrates the concept of:
+
+A. Deep processing
+B. Shallow processing
+C. Context dependence
+D. Encoding specificity
+
+Memory researchers recommend that you match your studying 
+technique as closely as possible to the way you will be tested on the 
+material. For example, if your exam will be entirely long-answer 
+questions, it is best to study by practicing answering long-answer 
+questions. This illustrates the concept of:
+
+A. Deep processing
+B. Shallow processing
+C. Context dependence
+D. Encoding specificity
+
+Questions?
+
+

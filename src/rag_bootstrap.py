@@ -6,7 +6,12 @@ from typing import Any, Dict, Optional, Sequence
 
 from chromadb.utils import embedding_functions
 
-from vector_db import ChromaVectorStore, DEFAULT_MODEL_NAME, embed_texts, get_model
+from vector_db import (
+    ChromaVectorStore,
+    DEFAULT_MODEL_NAME,
+    embed_texts,
+    get_model,
+)
 
 
 class MiniLMEmbeddingFunction(embedding_functions.EmbeddingFunction):
@@ -64,7 +69,6 @@ def initialize_embedding_function(
 def initialize_vector_store(
     *,
     collection_name: str = "openbook",
-    persist_directory: Optional[str] = None,
     metadata: Optional[Dict[str, Any]] = None,
     client_settings: Optional[Any] = None,
     embedding_function: Optional[embedding_functions.EmbeddingFunction] = None,
@@ -86,7 +90,6 @@ def initialize_vector_store(
 
     return ChromaVectorStore(
         collection_name=collection_name,
-        persist_directory=persist_directory,
         embedding_function=embedding_fn,
         client_settings=client_settings,
         metadata=metadata,

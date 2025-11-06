@@ -1,0 +1,635 @@
+Let’s test your THINKING
+
+Let’s test your THINKING
+
+1) A bat and a ball cost $1.10 in total. The bat costs $1.00 more than the ball. 
+How much does the ball cost? _____ cents
+
+Let’s test your THINKING
+
+2) If it takes 5 machines 5 minutes to make 5 widgets, how long would 
+it take 100 machines to make 100 widgets? _____ minutes
+
+1) A bat and a ball cost $1.10 in total. The bat 
+Let’s test your THINKING
+costs $1.00 more than the ball. How much does 
+3) In a lake, there is a patch of lily pads. Every day, the patch doubles in 
+the ball cost? _____ cents
+size. If it takes 48 days for the patch to cover the entire lake, how long 
+would it take for the patch to cover half of the lake? _____ days
+
+2) If it takes 5 machines 5 minutes to make 5 
+widgets, how long would it take 100 machines to 
+make 100 widgets? _____ minutes
+
+1) A bat and a ball cost $1.10 in total. The bat costs $1.00 more than the ball. 
+How much does the ball cost? 
+
+1) A bat and a ball cost $1.10 in total. The bat costs $1.00 more than the ball. 
+How much does the ball cost? 
+
+10 cents
+
+1) A bat and a ball cost $1.10 in total. The bat costs $1.00 more than the ball. 
+How much does the ball cost? 
+
+Actually, 5 cents
+
+1) A bat and a ball cost $1.10 in total. The bat 
+costs $1.00 more than the ball. How much does 
+2) If it takes 5 machines 5 minutes to make 5 widgets, how long would 
+it take 100 machines to make 100 widgets?
+the ball cost? 5 cents
+
+3) In a lake, there is a patch of lily pads. Every 
+day, the patch doubles in size. If it takes 48 days 
+for the patch to cover the entire lake, how long 
+would it take for the patch to cover half of the 
+lake? 47 days
+
+1) A bat and a ball cost $1.10 in total. The bat 
+costs $1.00 more than the ball. How much does 
+2) If it takes 5 machines 5 minutes to make 5 widgets, how long would 
+it take 100 machines to make 100 widgets?
+the ball cost? 5 cents
+
+100 minutes
+
+3) In a lake, there is a patch of lily pads. Every 
+day, the patch doubles in size. If it takes 48 days 
+for the patch to cover the entire lake, how long 
+would it take for the patch to cover half of the 
+lake? 47 days
+
+1) A bat and a ball cost $1.10 in total. The bat 
+costs $1.00 more than the ball. How much does 
+2) If it takes 5 machines 5 minutes to make 5 widgets, how long would 
+it take 100 machines to make 100 widgets?
+the ball cost? 5 cents
+
+Actually, 5 minutes
+
+3) In a lake, there is a patch of lily pads. Every 
+day, the patch doubles in size. If it takes 48 days 
+for the patch to cover the entire lake, how long 
+would it take for the patch to cover half of the 
+lake? 47 days
+
+1) A bat and a ball cost $1.10 in total. The bat 
+3) In a lake, there is a patch of lily pads. Every day, the patch doubles in 
+costs $1.00 more than the ball. How much does 
+size. If it takes 48 days for the patch to cover the entire lake, how long 
+would it take for the patch to cover half of the lake?
+the ball cost? _____ cents
+
+1) A bat and a ball cost $1.10 in total. The bat 
+3) In a lake, there is a patch of lily pads. Every day, the patch doubles in 
+costs $1.00 more than the ball. How much does 
+size. If it takes 48 days for the patch to cover the entire lake, how long 
+would it take for the patch to cover half of the lake?
+the ball cost? _____ cents
+
+24 days
+
+1) A bat and a ball cost $1.10 in total. The bat 
+3) In a lake, there is a patch of lily pads. Every day, the patch doubles in 
+costs $1.00 more than the ball. How much does 
+size. If it takes 48 days for the patch to cover the entire lake, how long 
+would it take for the patch to cover half of the lake?
+the ball cost? _____ cents
+
+Actually, 47 days
+
+In a survey of 3,428 people, 33% of people missed all three questions!
+
+Most people (83%) missed at least one question.
+
+Only 48% of MIT students were able to answer all the questions correctly.
+
+WHY?
+
+Decision Making
+
+intuition
+
+reason
+
+How do we make good decisions?
+
+THINKING
+
+Expected Utility Theory
+
+Expected Value = 
+
+Odds of Gain x Value of Gain
+
+Expected Utility Theory
+
+Errors of odds
+
+Errors of valuation
+
+Expected Value = 
+
+Odds of Gain x Value of Gain
+
+Expected Utility Theory
+
+Expected Value = 
+
+Odds of Gain x Value of Gain
+
+Expected Utility Theory
+
+If it comes up heads, I’ll 
+give you $10. 
+
+Should you pay $4 to play?
+
+Expected Value = 
+
+Odds of Gain x Value of Gain
+
+Expected Utility Theory
+
+If it comes up heads, I’ll 
+give you $10. 
+
+Should you pay $4 to play?
+
+Expected Value = 
+
+Odds of Gain x Value of Gain
+
+(1)          x        ($4) 
+
+(1/2)         x        ($10) 
+
+= $4
+
+= $5
+
+Expected Utility Theory
+
+If it comes up 2, I’ll give you 
+$10. 
+
+Should you pay $4 to play?
+
+Expected Value = 
+
+Odds of Gain x Value of Gain
+
+(1)          x        ($4) 
+
+= $4
+
+(1/6)         x        ($10) 
+
+= $1.67
+
+Expected Utility Theory
+
+If you pick all 6 numbers, I’ll 
+give you $50 million. 
+
+ Should you pay $1 to play? 
+
+Expected Value = 
+
+Odds of Gain x Value of Gain
+
+(1/175,711,536)   x     ($50,000,000)  = $0.23
+
+Expected Utility Theory
+
+Bounded rationality
+
+Today’s Game Plan
+
+Errors of odds
+
+Errors of valuation
+
+• sample size neglect
+
+• presentism
+
+• gambler’s fallacy
+
+• comparing to the past
+
+• conjunction fallacy
+
+•temporal discounting
+
+• availability bias
+
+• planning fallacy
+
+Today’s Game Plan
+
+Errors of odds
+
+Errors of valuation
+
+• sample size neglect
+
+• gambler’s fallacy
+
+• conjunction fallacy
+
+• availability bias
+
+• planning fallacy
+
+Error of Odds
+
+Sample Size Neglect
+
+45 babies are born each day in a 
+large hospital and 15 in a small 
+hospital. Each hospital records the 
+days on which more than 60% of the 
+babies born were boys.  
+
+Which hospital recorded more 
+such days last year? 
+
+Error of Odds
+
+Sample Size Neglect
+
+45 babies are born each day in a 
+large hospital and 15 in a small 
+hospital. Each hospital records the 
+days on which more than 60% of the 
+babies born were boys.  
+
+Which hospital recorded more 
+such days last year?
+
+Most people say “They are the same”
+
+Error of Odds
+
+Sample Size Neglect
+
+45 babies are born each day in a 
+large hospital and 15 in a small 
+hospital. Each hospital records the 
+days on which more than 60% of the 
+babies born were boys.  
+
+Which hospital recorded more 
+such days last year? 
+
+BUT…the answer is the smaller hospital
+
+Error of Odds
+
+Sample Size Neglect
+
+The Law of Large Numbers: 
+
+When the sample is large, the average 
+the  sample  closely 
+property  of 
+resembles the average property of the 
+population from which it was drawn.
+
+Error of Odds
+
+Sample Size Neglect
+
+Error of Odds
+
+Sample Size Neglect
+
+Proportion of “heads”
+
+40 flips
+
+400 flips
+
+4,000 flips
+
+40,000 flips
+
+0.53
+0.40
+0.50
+0.33
+0.62
+0.50
+0.45
+0.42
+0.45
+0.62
+
+0.52
+0.53
+0.48
+0.50
+0.52
+0.52
+0.52
+0.51
+0.47
+0.53
+
+0.50
+0.50
+0.49
+0.51
+0.50
+0.50
+0.49
+0.50
+0.50
+0.50
+
+0.50
+0.50
+0.50
+0.50
+0.50
+0.50
+0.50
+0.50
+0.50
+0.50
+
+Error of Odds
+
+Gambler’s fallacy
+
+Is this guy being rational?
+
+Error of Odds
+
+Gambler’s fallacy
+
+A fair coin is flipped 9 times. In which series is a 
+HEAD more likely than a TAIL on the 10th flip? 
+(POLL)
+
+T T T T T T T T T ____
+H H H H H H H H ____ 
+
+Error of Odds
+
+Gambler’s fallacy
+
+A fair coin is flipped 9 times. In which series is a 
+HEAD more likely than a TAIL on the 10th flip? 
+(POLL)
+
+ANSWER: Neither. The prior flips have no effect
+
+Error of Odds
+
+Gambler’s fallacy
+
+The belief that the 
+likelihood of a chance 
+event is influenced by the 
+nature of the events that 
+preceded it. 
+
+Error of Odds
+Linda is 31 years old, single, outspoken, and very bright. 
+She majored in philosophy. As a student, she was deeply 
+concerned with issues of discrimination and social justice.
+
+Which is more likely?
+
+Error of Odds
+Linda is 31 years old, single, outspoken, and very bright. 
+She majored in philosophy. As a student, she was deeply 
+concerned with issues of discrimination and social justice.
+
+Which is more likely?
+
+A. Linda is a bank teller
+
+B. Linda is a bank teller and is active in the feminist 
+
+movement
+
+Error of Odds
+Linda is 31 years old, single, outspoken, and very bright. 
+She majored in philosophy. As a student, she was deeply 
+concerned with issues of discrimination and social justice.
+
+Which is more likely?
+
+A. Linda is a bank teller
+
+B. Linda is a bank teller and is active in the feminist 
+
+movement
+
+Error of Odds
+
+Conjunction fallacy
+
+A. Linda is a bank teller
+
+B. Linda is a bank teller and is active in the feminist 
+
+movement
+
+p(X) ≥ p(X + Y)
+
+p(teller) ≥ p(teller + feminist)
+
+Error of Odds
+
+What is the leading cause of death?
+
+Error of Odds
+
+Availability bias
+
+Error of Odds
+
+Availability bias
+
+Error of Odds
+
+The Planning Fallacy
+
+Error of Odds
+
+The Planning Fallacy
+
+33.927.448.655.50102030405060PredictionBest CasePredictionWorst CasePredictionActual Completion Time in DaysToday’s Game Plan
+
+Errors of odds
+
+Errors of valuation
+
+• presentism
+
+• comparing to the past
+
+•temporal discounting
+
+Errors of Valuation
+Do you shop differently when you are hungry?
+
+Errors of Valuation
+Presentism
+
+Don’t go shopping on an empty stomach!
+
+Errors of Valuation
+Which Job Would You Take?
+
+Job A
+
+Job B
+
+Year 3
+
+$80K
+
+$95K
+
+Year 2
+
+$90K
+
+$90K
+
+Year 1
+
+$100K
+
+$80K
+
+Errors of Valuation
+Comparing to the past
+
+$270k
+
+$265k
+
+Year 3
+
+$80K
+
+$95K
+
+Year 2
+
+$90K
+
+$90K
+
+Year 1
+
+$100K
+
+$80K
+
+Errors of Valuation
+
+Delay of Gratification
+
+Errors of Valuation
+
+Delay of Gratification
+
+Errors of Valuation
+
+Delay of Gratification
+
+Length of delay at 4-years-of-age 
+correlates with 14-year-old’s:
+
+• planning & thinking ahead 
+
+• resistance to temptation
+
+• ability to cope with frustration 
+
+• social competence
+
+• verbal fluency/expression
+
+Length of delay at 4-years-of-age 
+correlates with 18-year-old’s SAT 
+scores!
+
+Errors of Valuation
+
+Delay of Gratification
+
+Errors of Valuation
+Temporal discounting
+
+$10 now
+
+$12 in 1 
+week
+
+Errors of Valuation
+Temporal discounting
+
+$10 now
+
+$12 in 1 
+week
+
+vs.
+
+$10 in 52 
+weeks
+
+$12 in 53 
+weeks
+
+Errors of Valuation
+Losses loom larger than gains
+
+The Endowment Effect
+
+Objective Value = $5.00
+
+Sellers Offer  = $7.12 
+
+Buyers Bid = $2.87
+
+The problem with thinking!
+
+Critical Thinking challenge
+
+Key Ideas
+
+• Decision making requires predicting the likelihood and value of 
+
+outcomes.
+
+• Because decision making is a newly-evolved cognitive algorithm, 
+
+it has quite a few bugs.  
+
+• For example, the predictions of human beings deviate 
+
+considerably from the standards of Expected Utility Theory.
+
+Critical Thinking challenge
+
+Hopefully you’ve gained new 
+insights to make you a better 
+thinker the past few weeks.
+
+Identity a bias in yourself or a 
+friend, explain why it happens, 
+and describe what they can do to 
+overcome it!
+
+

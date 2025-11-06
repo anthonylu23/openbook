@@ -6,6 +6,7 @@ from typing import Dict, List, Optional, Sequence, Tuple
 
 try:
     from sentence_transformers import SentenceTransformer
+    
 except ImportError as exc:  # pragma: no cover - import guard
     raise ImportError(
         "sentence-transformers is required to use MiniLM embeddings."
