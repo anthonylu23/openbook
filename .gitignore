@@ -1,0 +1,18 @@
+# Dependency directories
+node_modules/
+
+# Build / distribution outputs
+dist/
+build/
+
+# Python artifacts
+__pycache__/
+*.pyc
+
+# Environment variables / secrets
+.env
+env/
+.venv/
+
+# OS-specific clutter
+.DS_Store
