@@ -3,14 +3,20 @@
 import { Command, InvalidArgumentError } from "commander";
 import figlet from "figlet";
 import path from "path";
+import { createInterface } from "readline/promises";
 
 import packageJson from "../package.json";
 import { indexDocuments } from "./commands/indexDocuments";
+import { runQuery } from "./commands/query";
 import { loadConfig, saveConfig, OpenBookConfig } from "./config";
+import { isValidProvider, PROVIDERS, ProviderName } from "./models/provider";
 
 const program = new Command();
 const DEFAULT_OVERLAP = 80;
 let currentConfig: OpenBookConfig = loadConfig();
+if (!currentConfig.apiKeys) {
+    currentConfig.apiKeys = {};
+}
 
 console.log(figlet.textSync("openbook"));
 
@@ -48,11 +54,32 @@ program
 
 program
     .command("query")
-    .description("Query the indexed knowledge base (coming soon)")
-    .argument("<query>", "Query string to search for")
-    .action((query: string) => {
-        void query;
-        console.warn("Querying is not implemented yet. Use the index command to prepare data first.");
+    .description("Query the indexed knowledge base (framework placeholder)")
+    .argument("<question>", "Question or prompt")
+    .action(async (question: string) => {
+        await executeQuery(question);
+    });
+
+program
+    .command("chat")
+    .description("Start an interactive chat session with retrieval + LLM")
+    .action(async () => {
+        console.log("Starting chat. Type 'exit' to end.");
+        const rl = createInterface({ input: process.stdin, output: process.stdout });
+        try {
+            for (;;) {
+                const question = await rl.question("You> ");
+                if (!question.trim()) {
+                    continue;
+                }
+                if (["exit", "quit", "bye"].includes(question.trim().toLowerCase())) {
+                    break;
+                }
+                await executeQuery(question);
+            }
+        } finally {
+            rl.close();
+        }
     });
 
 program
@@ -140,20 +167,57 @@ program
     .action((provider?: string) => {
         if (!provider) {
             console.log(`Current model provider: ${currentConfig.modelProvider}`);
+            console.log("Available providers:");
+            Object.values(PROVIDERS).forEach((cfg) => {
+                console.log(`  • ${cfg.name} — ${cfg.description}`);
+            });
             return;
         }
 
-        updateConfig({ modelProvider: provider.toLowerCase() });
-        console.log(`Model provider set to ${provider}`);
+        const normalized = provider.toLowerCase();
+        if (!isValidProvider(normalized)) {
+            console.error(`Unknown provider: ${provider}`);
+            console.log("Valid providers:");
+            Object.keys(PROVIDERS).forEach((name) => console.log(`  • ${name}`));
+            process.exitCode = 1;
+            return;
+        }
+
+        const nextModel = ensureModelForProvider(normalized, currentConfig.model);
+        updateConfig({ modelProvider: normalized, model: nextModel });
+        console.log(`Model provider set to ${normalized}`);
+
+        const needsKey = PROVIDERS[normalized].needsApiKey;
+        if (needsKey && !currentConfig.apiKeys?.[normalized]) {
+            console.warn(`No API key stored for ${normalized}. Run 'openbook api-key --provider ${normalized} <value>'.`);
+        }
     });
 
 program
     .command("model")
     .description("Get or set the default model identifier")
-    .argument("[modelId]", "Model identifier (e.g., gpt-4o, qwen3:1.7b)")
-    .action((modelId?: string) => {
+    .argument("[modelId]", "Model identifier (use 'list' to view available options)")
+    .option("--custom", "Allow setting models outside the recommended list")
+    .action((modelId: string | undefined, options: { custom?: boolean }) => {
         if (!modelId) {
             console.log(`Current model: ${currentConfig.model}`);
+            listModelsForProvider(currentConfig.modelProvider);
+            return;
+        }
+
+        const provider = currentConfig.modelProvider;
+        const cfg = PROVIDERS[provider];
+
+        if (modelId.toLowerCase() === "list") {
+            listModelsForProvider(provider);
+            return;
+        }
+
+        if (!options.custom && !cfg.models.includes(modelId)) {
+            console.error(`Model '${modelId}' is not in the supported list for ${provider}.`);
+            listModelsForProvider(provider);
+            console.log("Use '--custom' to force a custom identifier.");
+            process.exitCode = 1;
             return;
         }
 
@@ -164,19 +228,63 @@ program
 program
     .command("api-key")
     .description("Get or set the API key for the current provider")
-    .argument("[key]", "API key value")
-    .action((key?: string) => {
-        if (!key) {
-            if (currentConfig.apiKey) {
-                console.log("API key is set (hidden). Use 'openbook api-key <value>' to update.");
+    .argument("[value]", "API key value")
+    .option("-p, --provider <name>", "Provider to configure")
+    .option("--clear", "Remove the stored API key for the target provider")
+    .action((value: string | undefined, options: { provider?: string; clear?: boolean }) => {
+        const target = (options.provider ?? currentConfig.modelProvider).toLowerCase();
+        if (!isValidProvider(target)) {
+            console.error(`Unknown provider: ${target}`);
+            console.log("Valid providers:");
+            Object.keys(PROVIDERS).forEach((name) => console.log(`  • ${name}`));
+            process.exitCode = 1;
+            return;
+        }
+
+        if (options.clear) {
+            const nextKeys = { ...currentConfig.apiKeys };
+            delete nextKeys[target];
+            updateConfig({ apiKeys: nextKeys });
+            console.log(`API key for ${target} cleared.`);
+            return;
+        }
+
+        if (!value) {
+            const key = currentConfig.apiKeys?.[target];
+            if (key) {
+                console.log(`API key for ${target}: ${maskKey(key)}`);
             } else {
-                console.log("No API key stored.");
+                console.log(`No API key stored for ${target}.`);
             }
             return;
         }
 
-        updateConfig({ apiKey: key });
-        console.log("API key updated.");
+        updateConfig({ apiKeys: { ...currentConfig.apiKeys, [target]: value } });
+        console.log(`API key for ${target} updated.`);
+    });
+
+program
+    .command("web-search")
+    .description("Get or set whether the model is allowed to perform web search")
+    .argument("[state]", "Use 'on' to enable or 'off' to disable")
+    .action((state?: string) => {
+        if (!state) {
+            console.log(`Web search is ${currentConfig.webSearchEnabled ? "enabled" : "disabled"}.`);
+            return;
+        }
+
+        const normalized = state.toLowerCase();
+        if (["on", "true", "yes", "1"].includes(normalized)) {
+            updateConfig({ webSearchEnabled: true });
+            console.log("Web search enabled.");
+            return;
+        }
+        if (["off", "false", "no", "0"].includes(normalized)) {
+            updateConfig({ webSearchEnabled: false });
+            console.log("Web search disabled.");
+            return;
+        }
+        throw new InvalidArgumentError("State must be 'on' or 'off'.");
     });
 
 program
@@ -224,6 +332,33 @@ async function run(): Promise<void> {
 
 run();
 
+async function executeQuery(question: string): Promise<void> {
+    const provider = currentConfig.modelProvider;
+    const providerConfig = PROVIDERS[provider];
+    if (!providerConfig) {
+        console.error(`Unknown provider in config: ${provider}`);
+        process.exitCode = 1;
+        return;
+    }
+
+    const apiKey = currentConfig.apiKeys?.[provider];
+    if (providerConfig.needsApiKey && !apiKey) {
+        console.error(
+            `No API key configured for ${provider}. Use 'openbook api-key --provider ${provider} <value>' to set one.`,
+        );
+        process.exitCode = 1;
+        return;
+    }
+
+    await runQuery({
+        question,
+        provider,
+        model: currentConfig.model,
+        apiKey,
+        webSearchEnabled: currentConfig.webSearchEnabled,
+    });
+}
+
 function normalizeExtensions(input?: string[] | string): string[] | undefined {
     if (!input) {
         return undefined;
@@ -259,6 +394,42 @@ function handleCliError(context: string, error: unknown): void {
 }
 
 function updateConfig(partial: Partial<OpenBookConfig>): void {
-    currentConfig = { ...currentConfig, ...partial };
+    if (partial.apiKeys) {
+        currentConfig = {
+            ...currentConfig,
+            ...partial,
+            apiKeys: { ...currentConfig.apiKeys, ...partial.apiKeys },
+        };
+    } else {
+        currentConfig = { ...currentConfig, ...partial };
+    }
+    if (partial.modelProvider || partial.model) {
+        currentConfig.model = ensureModelForProvider(currentConfig.modelProvider, currentConfig.model);
+    }
     saveConfig(currentConfig);
+}
+
+function maskKey(key: string): string {
+    if (key.length <= 6) {
+        return "*".repeat(key.length);
+    }
+    return `${key.slice(0, 3)}***${key.slice(-3)}`;
+}
+
+function listModelsForProvider(provider: ProviderName): void {
+    const cfg = PROVIDERS[provider];
+    console.log("Available models:");
+    cfg.models.forEach((m) => {
+        const marker = currentConfig.model === m ? "*" : " ";
+        console.log(` ${marker} ${m}`);
+    });
+    console.log("(Use --custom to set models outside this list.)");
+}
+
+function ensureModelForProvider(provider: ProviderName, currentModel: string): string {
+    const cfg = PROVIDERS[provider];
+    if (!cfg) {
+        return currentModel;
+    }
+    return cfg.models.includes(currentModel) ? currentModel : cfg.defaultModel;
 }

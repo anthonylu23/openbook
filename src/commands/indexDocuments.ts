@@ -1,4 +1,5 @@
 import fs from "fs/promises";
+import os from "os";
 import path from "path";
 
 export interface IndexDocumentsOptions {
@@ -267,9 +268,17 @@ function splitLongSegment(text: string, chunkSize: number, overlap: number): str
     return chunks.filter((chunk) => chunk.length > 0);
 }
 
+const INDEX_DIR = path.join(os.homedir(), ".openbook");
+const INDEX_FILE = path.join(INDEX_DIR, "chunks.jsonl");
+
 async function persistChunks(chunks: ChunkRecord[]): Promise<void> {
-    // TODO: integrate with vector DB ingestion pipeline.
-    void chunks;
+    if (!chunks.length) {
+        return;
+    }
+
+    await fs.mkdir(INDEX_DIR, { recursive: true });
+    const lines = chunks.map((chunk) => JSON.stringify(chunk)).join("\n") + "\n";
+    await fs.appendFile(INDEX_FILE, lines, "utf8");
 }
 
 async function notifyIndexerComplete(totalChunks: number): Promise<void> {
