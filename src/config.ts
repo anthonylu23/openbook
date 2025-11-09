@@ -12,6 +12,8 @@ export interface OpenBookConfig {
     model: string;
     apiKeys: Partial<Record<ProviderName, string>>;
     webSearchEnabled: boolean;
+    chunksPerQuery: number;
+    embeddingModel: string;
 }
 
 const CONFIG_DIR = path.join(os.homedir(), ".openbook");
@@ -27,6 +29,8 @@ const DEFAULT_CONFIG: OpenBookConfig = {
     model: PROVIDERS[DEFAULT_PROVIDER].defaultModel,
     apiKeys: {},
     webSearchEnabled: false,
+    chunksPerQuery: 5,
+    embeddingModel: "nomic-embed-text",
 };
 
 function ensureConfigDir() : void {
@@ -58,6 +62,14 @@ export function loadConfig(): OpenBookConfig {
                 typeof data.webSearchEnabled === "boolean"
                     ? data.webSearchEnabled
                     : DEFAULT_CONFIG.webSearchEnabled,
+            chunksPerQuery:
+                typeof data.chunksPerQuery === "number" && data.chunksPerQuery > 0
+                    ? data.chunksPerQuery
+                    : DEFAULT_CONFIG.chunksPerQuery,
+            embeddingModel:
+                typeof data.embeddingModel === "string" && data.embeddingModel.length > 0
+                    ? data.embeddingModel
+                    : DEFAULT_CONFIG.embeddingModel,
         };
         normalizeModel(config);
         return config;

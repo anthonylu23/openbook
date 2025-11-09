@@ -16,3 +16,6 @@ env/
 
 # OS-specific clutter
 .DS_Store
+
+# Project reports
+status.md

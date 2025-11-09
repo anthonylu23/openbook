@@ -1,6 +1,7 @@
 import fs from "fs/promises";
 import os from "os";
 import path from "path";
+import { getEmbedding } from "../embed/ollama";
 
 export interface IndexDocumentsOptions {
     sourceDir: string;
@@ -8,6 +9,7 @@ export interface IndexDocumentsOptions {
     chunkSize?: number;
     overlap?: number;
     allowedExtensions?: string[];
+    embeddingModel?: string;
 }
 
 export interface FileRecord {
@@ -23,7 +25,7 @@ export interface ChunkRecord {
 }
 
 const DEFAULT_CHUNK_SIZE = 800;
-const DEFAULT_OVERLAP = 120;
+const DEFAULT_OVERLAP = 150;
 
 export async function indexDocuments(options: IndexDocumentsOptions): Promise<number> {
     const {
@@ -32,6 +34,7 @@ export async function indexDocuments(options: IndexDocumentsOptions): Promise<nu
         chunkSize = DEFAULT_CHUNK_SIZE,
         overlap = DEFAULT_OVERLAP,
         allowedExtensions,
+        embeddingModel,
     } = options;
 
     if (chunkSize <= 0) {
@@ -52,7 +55,7 @@ export async function indexDocuments(options: IndexDocumentsOptions): Promise<nu
     const fileRecords = await readFiles(files);
     const chunks = chunkFiles(fileRecords, { chunkSize, overlap });
 
-    await persistChunks(chunks);
+    await persistChunks(chunks, chunkSize, embeddingModel);
     await notifyIndexerComplete(chunks.length);
     return chunks.length;
 }
@@ -268,20 +271,58 @@ function splitLongSegment(text: string, chunkSize: number, overlap: number): str
     return chunks.filter((chunk) => chunk.length > 0);
 }
 
-const INDEX_DIR = path.join(os.homedir(), ".openbook");
-const INDEX_FILE = path.join(INDEX_DIR, "chunks.jsonl");
+export const INDEX_DIR = path.join(os.homedir(), ".openbook");
+export const INDEX_FILE = path.join(INDEX_DIR, "chunks.jsonl");
 
-async function persistChunks(chunks: ChunkRecord[]): Promise<void> {
+async function persistChunks(chunks: ChunkRecord[], chunkSize: number, embeddingModel?: string): Promise<void> {
     if (!chunks.length) {
         return;
     }
 
     await fs.mkdir(INDEX_DIR, { recursive: true });
-    const lines = chunks.map((chunk) => JSON.stringify(chunk)).join("\n") + "\n";
-    await fs.appendFile(INDEX_FILE, lines, "utf8");
+    const lines: string[] = [];
+    const total = chunks.length;
+    if (process.stdout.isTTY) {
+        renderProgress(0, total);
+    } else {
+        console.log(`Embedding ${total} chunks...`);
+    }
+
+    for (let i = 0; i < chunks.length; i++) {
+        const chunk = chunks[i];
+        const embedding = await getEmbedding(chunk.content, embeddingModel);
+        lines.push(
+            JSON.stringify({
+                id: chunk.id,
+                filePath: chunk.filePath,
+                content: chunk.content,
+                metadata: chunk.metadata,
+                embedding,
+                chunkSize,
+            }),
+        );
+
+        if (process.stdout.isTTY) {
+            renderProgress(i + 1, total);
+        }
+    }
+
+    if (process.stdout.isTTY) {
+        process.stdout.write("\n");
+    }
+
+    await fs.appendFile(INDEX_FILE, lines.join("\n") + "\n", "utf8");
 }
 
 async function notifyIndexerComplete(totalChunks: number): Promise<void> {
     // TODO: hook into CLI logger or event system.
     void totalChunks;
+}
+
+function renderProgress(current: number, total: number): void {
+    const width = 24;
+    const ratio = Math.min(current / total, 1);
+    const filled = Math.round(ratio * width);
+    const bar = "█".repeat(filled) + "░".repeat(width - filled);
+    process.stdout.write(`\rEmbedding chunks [${bar}] ${current}/${total}`);
 }

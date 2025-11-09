@@ -1,6 +1,6 @@
 # OpenBook Status
 
-_Last updated: 2025-11-08 18:32 EST_
+_Last updated: 2025-11-09 12:26 EST_
 
 ## Completed
 - CLI bootstrap with commands:
@@ -12,13 +12,13 @@ _Last updated: 2025-11-08 18:32 EST_
   - `model`
   - `api-key`
   - `web-search`
-  - `query`
   - `chat`
   - `end-session`
   - `help`
+  - `embedding-model`
 - Persistent config at `~/.openbook/config.json` (chunk size, recursion, extensions, provider/model, per-provider API keys, web-search toggle).
 - Document chunking + storage pipeline (MiniLM + Chroma in-memory store, chunks persisted to `chunks.jsonl`).
-- Query framework that ranks chunks, builds prompts, and dispatches to Ollama/OpenAI/Anthropic/Google Gemini.
+- Retrieval + chat framework that ranks chunks, builds prompts, and dispatches to Ollama/OpenAI/Anthropic/Google Gemini.
 - Build pipeline (`npm run build`) producing executable `dist/index.js` with `openbook` bin entry.
 
 ## In Progress / Planned

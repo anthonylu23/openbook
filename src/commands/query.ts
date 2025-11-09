@@ -3,6 +3,7 @@ import os from "os";
 import path from "path";
 
 import { ProviderName } from "../models/provider";
+import { getEmbedding } from "../embed/ollama";
 
 export interface QueryContext {
     question: string;
@@ -10,14 +11,17 @@ export interface QueryContext {
     model: string;
     apiKey?: string;
     webSearchEnabled: boolean;
+    chunksPerQuery: number;
+    embeddingModel?: string;
 }
 
 const INDEX_FILE = path.join(os.homedir(), ".openbook", "chunks.jsonl");
 
 export async function runQuery(context: QueryContext): Promise<void> {
-    const { question, provider, model, apiKey, webSearchEnabled } = context;
+    const { question, provider, model, apiKey, webSearchEnabled, chunksPerQuery, embeddingModel } = context;
 
-    const contexts = loadTopChunks(question, 5);
+    const queryEmbedding = await getEmbedding(question, embeddingModel);
+    const contexts = loadTopChunks(queryEmbedding, chunksPerQuery);
     const prompt = buildPrompt(question, contexts, webSearchEnabled);
 
     try {
@@ -40,9 +44,10 @@ interface StoredChunk {
     id: string;
     filePath: string;
     content: string;
+    embedding: number[];
 }
 
-function loadTopChunks(question: string, k: number): StoredChunk[] {
+function loadTopChunks(queryEmbedding: number[], k: number): StoredChunk[] {
     if (!fs.existsSync(INDEX_FILE)) {
         return [];
     }
@@ -52,21 +57,25 @@ function loadTopChunks(question: string, k: number): StoredChunk[] {
     for (const line of lines) {
         try {
             const parsed = JSON.parse(line);
-            if (parsed && parsed.content && parsed.filePath) {
-                chunks.push({ id: parsed.id, filePath: parsed.filePath, content: parsed.content });
+            if (parsed && parsed.content && parsed.filePath && Array.isArray(parsed.embedding)) {
+                chunks.push({
+                    id: parsed.id,
+                    filePath: parsed.filePath,
+                    content: parsed.content,
+                    embedding: parsed.embedding,
+                });
             }
         } catch {
             // ignore malformed lines
         }
     }
 
-    const terms = question.toLowerCase().split(/[^\w]+/).filter(Boolean);
     const scored = chunks
         .map((chunk) => ({
             chunk,
-            score: scoreChunk(chunk.content, terms),
+            score: cosineSimilarity(queryEmbedding, chunk.embedding ?? []),
         }))
-        .filter((entry) => entry.score > 0)
+        .filter((entry) => Number.isFinite(entry.score))
         .sort((a, b) => b.score - a.score)
         .slice(0, k)
         .map((entry) => entry.chunk);
@@ -78,17 +87,22 @@ function loadTopChunks(question: string, k: number): StoredChunk[] {
     return scored;
 }
 
-function scoreChunk(content: string, terms: string[]): number {
-    if (terms.length === 0) {
+function cosineSimilarity(a: number[], b: number[]): number {
+    if (!a.length || a.length !== b.length) {
         return 0;
     }
-    const lower = content.toLowerCase();
-    let score = 0;
-    for (const term of terms) {
-        const occurrences = lower.split(term).length - 1;
-        score += occurrences;
+    let dot = 0;
+    let magA = 0;
+    let magB = 0;
+    for (let i = 0; i < a.length; i++) {
+        dot += a[i] * b[i];
+        magA += a[i] * a[i];
+        magB += b[i] * b[i];
     }
-    return score;
+    if (magA === 0 || magB === 0) {
+        return 0;
+    }
+    return dot / (Math.sqrt(magA) * Math.sqrt(magB));
 }
 
 interface ProviderRequest {

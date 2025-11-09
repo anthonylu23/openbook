@@ -8,8 +8,9 @@ import { createInterface } from "readline/promises";
 import packageJson from "../package.json";
 import { indexDocuments } from "./commands/indexDocuments";
 import { runQuery } from "./commands/query";
-import { loadConfig, saveConfig, OpenBookConfig } from "./config";
+import { loadConfig, saveConfig, OpenBookConfig, getDefaultConfig } from "./config";
 import { isValidProvider, PROVIDERS, ProviderName } from "./models/provider";
+import { resetSession } from "./session/reset";
 
 const program = new Command();
 const DEFAULT_OVERLAP = 80;
@@ -18,7 +19,28 @@ if (!currentConfig.apiKeys) {
     currentConfig.apiKeys = {};
 }
 
+const SUPPORTED_EXTENSIONS = [
+    ".txt",
+    ".md",
+    ".mdx",
+    ".rst",
+    ".adoc",
+    ".log",
+    ".json",
+    ".yaml",
+    ".yml",
+    ".csv",
+    ".py",
+    ".ts",
+    ".js",
+    ".java",
+    ".html",
+];
+
 console.log(figlet.textSync("openbook"));
+
+program.configureHelp({ sortSubcommands: true });
+program.showHelpAfterError(true);
 
 program
     .name("openbook")
@@ -40,6 +62,7 @@ program
                 overlap: DEFAULT_OVERLAP,
                 allowedExtensions:
                     currentConfig.extensions.length > 0 ? currentConfig.extensions : undefined,
+                embeddingModel: currentConfig.embeddingModel,
             });
 
             console.log(
@@ -50,14 +73,6 @@ program
         } catch (error) {
             handleCliError("index", error);
         }
-    });
-
-program
-    .command("query")
-    .description("Query the indexed knowledge base (framework placeholder)")
-    .argument("<question>", "Question or prompt")
-    .action(async (question: string) => {
-        await executeQuery(question);
     });
 
 program
@@ -134,6 +149,8 @@ program
                     "Enabled extensions:\n" +
                         currentConfig.extensions.map((ext) => `  • ${ext}`).join("\n"),
                 );
+                console.log("\nRecommended extensions: ");
+                SUPPORTED_EXTENSIONS.forEach((ext) => console.log(`  • ${ext}`));
             }
             return;
         }
@@ -155,9 +172,25 @@ program
 
 program
     .command("end-session")
-    .description("Reset session-specific state (currently no-op)")
+    .description("Reset indexed data and restore default settings")
     .action(() => {
-        console.log("Session ended. (No session state to clear yet.)");
+        resetSession();
+        currentConfig = getDefaultConfig();
+        console.log("Session reset. Index cleared and settings restored to defaults.");
+    });
+
+program
+    .command("context-chunks")
+    .description("Get or set how many chunks are sent to the LLM per query")
+    .argument("[count]", "Positive integer chunk count")
+    .action((count?: string) => {
+        if (!count) {
+            console.log(`Chunks per query: ${currentConfig.chunksPerQuery}`);
+            return;
+        }
+        const parsed = parsePositiveInt(count);
+        updateConfig({ chunksPerQuery: parsed });
+        console.log(`Chunks per query set to ${parsed}`);
     });
 
 program
@@ -288,6 +321,21 @@ program
     });
 
 program
+    .command("embedding-model")
+    .description("Get or set the embedding model used for indexing/querying")
+    .argument("[name]", "Ollama embedding model ID")
+    .action((name?: string) => {
+        if (!name) {
+            console.log(`Current embedding model: ${currentConfig.embeddingModel}`);
+            console.log("Set this to an Ollama model that supports embeddings (e.g., nomic-embed-text).");
+            return;
+        }
+
+        updateConfig({ embeddingModel: name });
+        console.log(`Embedding model set to ${name}. Re-run indexing to regenerate embeddings.`);
+    });
+
+program
     .command("help")
     .description("Show help for a specific command")
     .argument("[command]", "Command to show help for", "")
@@ -350,13 +398,20 @@ async function executeQuery(question: string): Promise<void> {
         return;
     }
 
-    await runQuery({
-        question,
-        provider,
-        model: currentConfig.model,
-        apiKey,
-        webSearchEnabled: currentConfig.webSearchEnabled,
-    });
+    const stopSpinner = startSpinner("Thinking");
+    try {
+        await runQuery({
+            question,
+            provider,
+            model: currentConfig.model,
+            apiKey,
+            webSearchEnabled: currentConfig.webSearchEnabled,
+            chunksPerQuery: currentConfig.chunksPerQuery,
+            embeddingModel: currentConfig.embeddingModel,
+        });
+    } finally {
+        stopSpinner();
+    }
 }
 
 function normalizeExtensions(input?: string[] | string): string[] | undefined {
@@ -432,4 +487,20 @@ function ensureModelForProvider(provider: ProviderName, currentModel: string): s
         return currentModel;
     }
     return cfg.models.includes(currentModel) ? currentModel : cfg.defaultModel;
+}
+
+function startSpinner(label: string): () => void {
+    if (!process.stdout.isTTY) {
+        return () => {};
+    }
+    const frames = ["|", "/", "-", "\\"];
+    let i = 0;
+    const interval = setInterval(() => {
+        const frame = frames[i = (i + 1) % frames.length];
+        process.stdout.write(`\r${label} ${frame}`);
+    }, 100);
+    return () => {
+        clearInterval(interval);
+        process.stdout.write("\r" + " ".repeat(label.length + 2) + "\r");
+    };
 }
