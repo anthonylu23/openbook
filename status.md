@@ -1,6 +1,6 @@
 # OpenBook Status
 
-_Last updated: 2025-11-09 12:26 EST_
+_Last updated: 2025-11-09 16:06 EST_
 
 ## Completed
 - CLI bootstrap with commands:
@@ -8,10 +8,14 @@ _Last updated: 2025-11-09 12:26 EST_
   - `chunksize`
   - `recursive`
   - `extensions`
+  - `context-chunks`
+  - `rag`
   - `model-provider`
   - `model`
   - `api-key`
   - `web-search`
+  - `web-search-provider`
+  - `web-search-results`
   - `chat`
   - `end-session`
   - `help`

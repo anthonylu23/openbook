@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+import "./utils/loadEnv";
+
 import { Command, InvalidArgumentError } from "commander";
 import figlet from "figlet";
 import path from "path";
@@ -8,7 +10,7 @@ import { createInterface } from "readline/promises";
 import packageJson from "../package.json";
 import { indexDocuments } from "./commands/indexDocuments";
 import { runQuery } from "./commands/query";
-import { loadConfig, saveConfig, OpenBookConfig, getDefaultConfig } from "./config";
+import { loadConfig, OpenBookConfig, getDefaultConfig, applyConfigUpdate } from "./config";
 import { isValidProvider, PROVIDERS, ProviderName } from "./models/provider";
 import { resetSession } from "./session/reset";
 
@@ -194,6 +196,29 @@ program
     });
 
 program
+    .command("rag")
+    .description("Get or set whether retrieval-augmented generation is enabled")
+    .argument("[state]", "Use 'on' to enable or 'off' to disable")
+    .action((state?: string) => {
+        if (!state) {
+            console.log(`RAG is ${currentConfig.ragEnabled ? "enabled" : "disabled"}.`);
+            return;
+        }
+        const normalized = state.toLowerCase();
+        if (["on", "true", "yes", "1"].includes(normalized)) {
+            updateConfig({ ragEnabled: true });
+            console.log("RAG enabled.");
+            return;
+        }
+        if (["off", "false", "no", "0"].includes(normalized)) {
+            updateConfig({ ragEnabled: false });
+            console.log("RAG disabled. Answers will rely on web/general knowledge only.");
+            return;
+        }
+        throw new InvalidArgumentError("State must be 'on' or 'off'.");
+    });
+
+program
     .command("model-provider")
     .description("Get or set the active model provider (e.g., openai, ollama)")
     .argument("[provider]", "Provider identifier")
@@ -216,7 +241,7 @@ program
             return;
         }
 
-        const nextModel = ensureModelForProvider(normalized, currentConfig.model);
+        const nextModel = ensureModelForProvider(normalized, currentConfig.model, currentConfig.customModels);
         updateConfig({ modelProvider: normalized, model: nextModel });
         console.log(`Model provider set to ${normalized}`);
 
@@ -246,7 +271,11 @@ program
             return;
         }
 
-        if (!options.custom && !cfg.models.includes(modelId)) {
+        const allowImplicitCustom = provider === "ollama";
+        const listed = cfg.models.includes(modelId);
+        const isCustom = options.custom || (!listed && allowImplicitCustom);
+
+        if (!listed && !isCustom) {
             console.error(`Model '${modelId}' is not in the supported list for ${provider}.`);
             listModelsForProvider(provider);
             console.log("Use '--custom' to force a custom identifier.");
@@ -254,7 +283,10 @@ program
             return;
         }
 
-        updateConfig({ model: modelId });
+        const customPatch: Partial<Record<ProviderName, string>> = {};
+        customPatch[provider] = isCustom ? modelId : "";
+
+        updateConfig({ model: modelId, customModels: customPatch });
         console.log(`Model set to ${modelId}`);
     });
 
@@ -318,6 +350,33 @@ program
             return;
         }
         throw new InvalidArgumentError("State must be 'on' or 'off'.");
+    });
+
+program
+    .command("web-search-provider")
+    .description("Get or set the web search provider (default: bing)")
+    .argument("[name]", "Provider identifier")
+    .action((name?: string) => {
+        if (!name) {
+            console.log(`Web search provider: ${currentConfig.webSearchProvider}`);
+            return;
+        }
+        updateConfig({ webSearchProvider: name.toLowerCase() });
+        console.log(`Web search provider set to ${name}`);
+    });
+
+program
+    .command("web-search-results")
+    .description("Get or set how many web results to include when web search is enabled")
+    .argument("[count]", "Positive integer result count")
+    .action((count?: string) => {
+        if (!count) {
+            console.log(`Web search results: ${currentConfig.webSearchResults}`);
+            return;
+        }
+        const parsed = parsePositiveInt(count);
+        updateConfig({ webSearchResults: parsed });
+        console.log(`Web search results set to ${parsed}`);
     });
 
 program
@@ -408,6 +467,9 @@ async function executeQuery(question: string): Promise<void> {
             webSearchEnabled: currentConfig.webSearchEnabled,
             chunksPerQuery: currentConfig.chunksPerQuery,
             embeddingModel: currentConfig.embeddingModel,
+            webSearchProvider: currentConfig.webSearchProvider,
+            webSearchResults: currentConfig.webSearchResults,
+            ragEnabled: currentConfig.ragEnabled,
         });
     } finally {
         stopSpinner();
@@ -449,19 +511,7 @@ function handleCliError(context: string, error: unknown): void {
 }
 
 function updateConfig(partial: Partial<OpenBookConfig>): void {
-    if (partial.apiKeys) {
-        currentConfig = {
-            ...currentConfig,
-            ...partial,
-            apiKeys: { ...currentConfig.apiKeys, ...partial.apiKeys },
-        };
-    } else {
-        currentConfig = { ...currentConfig, ...partial };
-    }
-    if (partial.modelProvider || partial.model) {
-        currentConfig.model = ensureModelForProvider(currentConfig.modelProvider, currentConfig.model);
-    }
-    saveConfig(currentConfig);
+    currentConfig = applyConfigUpdate(currentConfig, partial);
 }
 
 function maskKey(key: string): string {
@@ -473,18 +523,50 @@ function maskKey(key: string): string {
 
 function listModelsForProvider(provider: ProviderName): void {
     const cfg = PROVIDERS[provider];
-    console.log("Available models:");
-    cfg.models.forEach((m) => {
-        const marker = currentConfig.model === m ? "*" : " ";
-        console.log(` ${marker} ${m}`);
-    });
-    console.log("(Use --custom to set models outside this list.)");
+    
+    if (provider === "ollama") {
+        // Special handling for Ollama
+        console.log("Recommended models:");
+        if (cfg.recommendedModels && cfg.recommendedModels.length > 0) {
+            cfg.recommendedModels.forEach((m) => {
+                const marker = currentConfig.model === m ? "*" : " ";
+                console.log(` ${marker} ${m}`);
+            });
+        }
+        console.log("");
+        if (cfg.instructions) {
+            console.log("Instructions:");
+            cfg.instructions.split("\n").forEach((line) => {
+                console.log(`  ${line}`);
+            });
+        }
+        console.log("\n(Use --custom to set any model name. Visit https://ollama.com/library for all available models.)");
+    } else {
+        // Standard handling for other providers
+        console.log("Available models:");
+        cfg.models.forEach((m) => {
+            const marker = currentConfig.model === m ? "*" : " ";
+            console.log(` ${marker} ${m}`);
+        });
+        console.log("(Use --custom to set models outside this list.)");
+    }
 }
 
-function ensureModelForProvider(provider: ProviderName, currentModel: string): string {
+function ensureModelForProvider(
+    provider: ProviderName,
+    currentModel: string,
+    customModels: Partial<Record<ProviderName, string>>,
+): string {
     const cfg = PROVIDERS[provider];
     if (!cfg) {
         return currentModel;
+    }
+    const custom = customModels?.[provider];
+    if (custom) {
+        return custom;
+    }
+    if (provider === "ollama") {
+        return currentModel || cfg.defaultModel;
     }
     return cfg.models.includes(currentModel) ? currentModel : cfg.defaultModel;
 }

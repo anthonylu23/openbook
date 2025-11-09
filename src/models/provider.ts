@@ -7,6 +7,9 @@ export interface ProviderConfig {
     description: string;
     models: string[];
     defaultModel: string;
+    // Optional fields for Ollama
+    recommendedModels?: string[];
+    instructions?: string;
 }
 
 export const PROVIDERS: Record<ProviderName, ProviderConfig> = {
@@ -15,32 +18,34 @@ export const PROVIDERS: Record<ProviderName, ProviderConfig> = {
         supportsWebSearch: false,
         needsApiKey: false,
         description: "Local Ollama models (run via ollama serve)",
-        models: ["qwen3:1.7b", "llama3.1:8b", "mistral-nemo:12b"],
+        models: [], // No fixed list - users can use any model
         defaultModel: "qwen3:1.7b",
+        recommendedModels: ["qwen3:1.7b", "qwen2.5:7b", "mistral:7b", "phi3:3.8b"],
+        instructions: "Pull models: ollama pull <model-name>\nServe models: ollama serve\nFor available models, visit: https://ollama.com/library",
     },
     openai: {
         name: "openai",
         supportsWebSearch: false,
         needsApiKey: true,
-        description: "OpenAI API models (GPT-4o, GPT-4o-mini, etc.)",
-        models: ["gpt-4o-mini", "gpt-4.1-mini", "gpt-4o"],
-        defaultModel: "gpt-4o-mini",
+        description: "OpenAI API models (GPT-5, GPT-4o, etc.)",
+        models: ["gpt-5", "gpt-4.1", "gpt-4.1-mini", "gpt-4o", "gpt-4o-mini"],
+        defaultModel: "gpt-5",
     },
     anthropic: {
         name: "anthropic",
         supportsWebSearch: false,
         needsApiKey: true,
         description: "Anthropic Claude models",
-        models: ["claude-3.5-sonnet", "claude-3-opus", "claude-3-haiku"],
-        defaultModel: "claude-3.5-sonnet",
+        models: ["claude-opus-4", "claude-sonnet-4", "claude-haiku-4.5", "claude-3-5-sonnet-20241022"],
+        defaultModel: "claude-opus-4",
     },
     google: {
         name: "google",
         supportsWebSearch: false,
         needsApiKey: true,
         description: "Google Gemini models",
-        models: ["gemini-2.0-pro-exp", "gemini-2.0-flash", "gemini-2.0-flash-lite"],
-        defaultModel: "gemini-2.0-flash",
+        models: ["gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.0-flash-exp", "gemini-1.5-pro"],
+        defaultModel: "gemini-2.5-pro",
     },
 };
 

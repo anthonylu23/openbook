@@ -1,9 +1,8 @@
-import fs from "fs";
-import os from "os";
-import path from "path";
-
 import { ProviderName } from "../models/provider";
 import { getEmbedding } from "../embed/ollama";
+import { searchChunks, StoredChunk } from "../retrieval/store";
+import { performWebSearch, WebSnippet } from "../web/search";
+import { getSystemPrompt } from "../prompt/systemPrompt";
 
 export interface QueryContext {
     question: string;
@@ -13,24 +12,44 @@ export interface QueryContext {
     webSearchEnabled: boolean;
     chunksPerQuery: number;
     embeddingModel?: string;
+    webSearchProvider?: string;
+    webSearchResults?: number;
+    ragEnabled?: boolean;
 }
 
-const INDEX_FILE = path.join(os.homedir(), ".openbook", "chunks.jsonl");
-
 export async function runQuery(context: QueryContext): Promise<void> {
-    const { question, provider, model, apiKey, webSearchEnabled, chunksPerQuery, embeddingModel } = context;
+    const {
+        question,
+        provider,
+        model,
+        apiKey,
+        webSearchEnabled,
+        chunksPerQuery,
+        embeddingModel,
+        webSearchProvider,
+        webSearchResults,
+    } = context as QueryContext & { webSearchProvider?: string; webSearchResults?: number };
 
     const queryEmbedding = await getEmbedding(question, embeddingModel);
-    const contexts = loadTopChunks(queryEmbedding, chunksPerQuery);
-    const prompt = buildPrompt(question, contexts, webSearchEnabled);
+    const contexts = context.ragEnabled === false ? [] : searchChunks(queryEmbedding, chunksPerQuery);
+    const webSnippets = webSearchEnabled
+        ? await safeWebSearch(question, webSearchProvider, webSearchResults ?? 3)
+        : [];
+    const prompt = buildPrompt(question, contexts, webSnippets, webSearchEnabled);
 
     try {
         const answer = await dispatchToProvider({ provider, model, prompt, apiKey });
         console.log("\nAnswer:\n" + answer + "\n");
         console.log("Context snippets:");
         contexts.forEach((ctx, idx) => {
-            console.log(`  [${idx + 1}] ${ctx.filePath}`);
+            console.log(`  [Chunk ${idx + 1}] ${ctx.filePath}`);
         });
+        if (webSnippets.length) {
+            console.log("Web sources:");
+            webSnippets.forEach((snippet, idx) => {
+                console.log(`  [Web ${idx + 1}] ${snippet.url}`);
+            });
+        }
     } catch (error) {
         if (error instanceof Error) {
             console.error(`Query failed: ${error.message}`);
@@ -38,71 +57,6 @@ export async function runQuery(context: QueryContext): Promise<void> {
             console.error("Query failed.", error);
         }
     }
-}
-
-interface StoredChunk {
-    id: string;
-    filePath: string;
-    content: string;
-    embedding: number[];
-}
-
-function loadTopChunks(queryEmbedding: number[], k: number): StoredChunk[] {
-    if (!fs.existsSync(INDEX_FILE)) {
-        return [];
-    }
-
-    const lines = fs.readFileSync(INDEX_FILE, "utf8").trim().split(/\n+/);
-    const chunks: StoredChunk[] = [];
-    for (const line of lines) {
-        try {
-            const parsed = JSON.parse(line);
-            if (parsed && parsed.content && parsed.filePath && Array.isArray(parsed.embedding)) {
-                chunks.push({
-                    id: parsed.id,
-                    filePath: parsed.filePath,
-                    content: parsed.content,
-                    embedding: parsed.embedding,
-                });
-            }
-        } catch {
-            // ignore malformed lines
-        }
-    }
-
-    const scored = chunks
-        .map((chunk) => ({
-            chunk,
-            score: cosineSimilarity(queryEmbedding, chunk.embedding ?? []),
-        }))
-        .filter((entry) => Number.isFinite(entry.score))
-        .sort((a, b) => b.score - a.score)
-        .slice(0, k)
-        .map((entry) => entry.chunk);
-
-    if (scored.length === 0) {
-        return chunks.slice(0, k);
-    }
-
-    return scored;
-}
-
-function cosineSimilarity(a: number[], b: number[]): number {
-    if (!a.length || a.length !== b.length) {
-        return 0;
-    }
-    let dot = 0;
-    let magA = 0;
-    let magB = 0;
-    for (let i = 0; i < a.length; i++) {
-        dot += a[i] * b[i];
-        magA += a[i] * a[i];
-        magB += b[i] * b[i];
-    }
-    if (magA === 0 || magB === 0) {
-        return 0;
-    }
-    return dot / (Math.sqrt(magA) * Math.sqrt(magB));
 }
 
 interface ProviderRequest {
@@ -214,25 +168,53 @@ async function queryGemini(model: string, prompt: string, apiKey: string): Promi
     return (typeof text === "string" ? text : "<no response>").trim();
 }
 
-function buildPrompt(question: string, contexts: StoredChunk[], webSearchEnabled: boolean): string {
-    const contextText = contexts
-        .map((chunk, idx) => `Chunk ${idx + 1} (source: ${chunk.filePath}):\n${chunk.content}`)
-        .join("\n\n");
+function buildPrompt(
+    question: string,
+    contexts: StoredChunk[],
+    webSnippets: WebSnippet[],
+    webSearchEnabled: boolean,
+): string {
+    const basePrompt = getSystemPrompt();
+    const contextSection = contexts.length
+        ? contexts
+              .map((chunk, idx) => `Chunk ${idx + 1} (source: ${chunk.filePath}):\n${chunk.content}`)
+              .join("\n\n")
+        : "<none>";
 
-    const instructions = contexts.length
-        ? "Prefer the provided context snippets when answering, citing chunk numbers when relevant."
-        : "No local context is available—answer based on general knowledge, and let the user know local context was missing.";
-
-    const searchLine = webSearchEnabled
-        ? "If the user explicitly asks for web search, note that the feature is not yet available."
-        : "Web search is disabled for this session.";
+    const webSection = webSnippets.length
+        ? webSnippets
+              .map((snippet, idx) => `Web ${idx + 1} (url: ${snippet.url}):\n${snippet.snippet || snippet.title}`)
+              .join("\n\n")
+        : webSearchEnabled
+        ? "<search enabled but no additional results>"
+        : "<web search disabled>";
 
     return [
-        "You are OpenBook, a privacy-first assistant.",
-        instructions,
-        searchLine,
-        contexts.length ? "\nContext:\n" + contextText : "\nContext: <none>",
-        "\nQuestion: " + question,
-        "\nAnswer clearly. If local context was missing, mention that fact.",
+        basePrompt.trim(),
+        "## Session Context",
+        `Local chunks:\n${contextSection}`,
+        "",
+        "## Web Results",
+        webSection,
+        "",
+        "## Question",
+        question,
     ].join("\n");
+}
+
+async function safeWebSearch(
+    question: string,
+    provider?: string,
+    limit?: number,
+): Promise<WebSnippet[]> {
+    try {
+        return await performWebSearch(question, {
+            provider,
+            limit,
+        });
+    } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        console.warn(`Web search failed: ${message}`);
+        return [];
+    }
 }

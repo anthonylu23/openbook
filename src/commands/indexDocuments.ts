@@ -1,7 +1,6 @@
 import fs from "fs/promises";
-import os from "os";
 import path from "path";
-import { getEmbedding } from "../embed/ollama";
+import { appendChunks } from "../retrieval/store";
 
 export interface IndexDocumentsOptions {
     sourceDir: string;
@@ -271,47 +270,38 @@ function splitLongSegment(text: string, chunkSize: number, overlap: number): str
     return chunks.filter((chunk) => chunk.length > 0);
 }
 
-export const INDEX_DIR = path.join(os.homedir(), ".openbook");
-export const INDEX_FILE = path.join(INDEX_DIR, "chunks.jsonl");
-
 async function persistChunks(chunks: ChunkRecord[], chunkSize: number, embeddingModel?: string): Promise<void> {
     if (!chunks.length) {
         return;
     }
-
-    await fs.mkdir(INDEX_DIR, { recursive: true });
-    const lines: string[] = [];
     const total = chunks.length;
-    if (process.stdout.isTTY) {
-        renderProgress(0, total);
-    } else {
+    if (!process.stdout.isTTY) {
         console.log(`Embedding ${total} chunks...`);
+    } else {
+        renderProgress(0, total);
     }
 
-    for (let i = 0; i < chunks.length; i++) {
-        const chunk = chunks[i];
-        const embedding = await getEmbedding(chunk.content, embeddingModel);
-        lines.push(
-            JSON.stringify({
-                id: chunk.id,
-                filePath: chunk.filePath,
-                content: chunk.content,
-                metadata: chunk.metadata,
-                embedding,
-                chunkSize,
-            }),
-        );
-
-        if (process.stdout.isTTY) {
-            renderProgress(i + 1, total);
-        }
-    }
+    await appendChunks(
+        chunks.map((chunk) => ({
+            id: chunk.id,
+            filePath: chunk.filePath,
+            content: chunk.content,
+            metadata: chunk.metadata,
+            chunkSize,
+        })),
+        {
+            embeddingModel,
+            onProgress: (current) => {
+                if (process.stdout.isTTY) {
+                    renderProgress(current, total);
+                }
+            },
+        },
+    );
 
     if (process.stdout.isTTY) {
         process.stdout.write("\n");
     }
-
-    await fs.appendFile(INDEX_FILE, lines.join("\n") + "\n", "utf8");
 }
 
 async function notifyIndexerComplete(totalChunks: number): Promise<void> {

@@ -93,6 +93,33 @@ OpenBook relies on Ollama to generate embeddings locally. Make sure to:
 
 If your Ollama daemon listens on a custom URL, set `OLLAMA_URL` before running OpenBook.
 
+### Web Search Setup (Optional)
+
+To augment answers with live web context:
+
+1. Obtain a Bing Web Search API key (Azure Cognitive Services).
+2. Export it before running OpenBook:
+   ```bash
+   export BING_SEARCH_KEY=your_key_here
+   ```
+3. Enable search and configure options:
+   ```bash
+   openbook web-search on
+   openbook web-search-provider bing
+   openbook web-search-results 3
+   ```
+
+To use Serper (Google results):
+
+```bash
+export SERPER_API_KEY=your_serper_key
+openbook web-search on
+openbook web-search-provider serper
+openbook web-search-results 3
+```
+
+If you have a custom Bing endpoint, set `BING_SEARCH_ENDPOINT` accordingly.
+
 ## Architecture
 
 OpenBook is built with a TypeScript CLI that talks to local services (Ollama) and optional cloud providers:
@@ -143,6 +170,9 @@ openbook extensions all
 # Set number of context chunks per query (default: 5)
 openbook context-chunks 6
 
+# Toggle retrieval (default: on)
+openbook rag off
+
 # Set embedding model (default: nomic-embed-text)
 openbook embedding-model nomic-embed-text
 ```
@@ -187,6 +217,8 @@ openbook api-key --clear
 ```bash
 # Enable web search augmentation (when supported by provider)
 openbook web-search on
+openbook web-search-provider bing
+openbook web-search-results 3
 
 # End current session (clear in-memory state)
 openbook end-session
@@ -197,9 +229,9 @@ openbook end-session
 | Provider | Type | Requires API Key | Models |
 |----------|------|------------------|--------|
 | **Ollama** | Local | ❌ | qwen3:1.7b, llama3.1:8b, mistral, etc. |
-| **OpenAI** | Cloud | ✅ | gpt-4o, gpt-4o-mini, gpt-4.1-mini |
-| **Anthropic** | Cloud | ✅ | claude-3.5-sonnet, claude-3-opus, claude-3-haiku |
-| **Google** | Cloud | ✅ | gemini-2.0-flash, gemini-2.0-pro-exp |
+| **OpenAI** | Cloud | ✅ | gpt-5-preview, gpt-4.2, gpt-4o |
+| **Anthropic** | Cloud | ✅ | claude-4.5-sonnet, claude-4-opus, claude-3.5-haiku |
+| **Google** | Cloud | ✅ | gemini-2.5-pro, gemini-2.5-flash |
 
 ## Use Cases
 
@@ -239,11 +271,14 @@ openbook chat  # then ask “What plot points have I mentioned about the protago
 | `recursive [on\|off]` | Enable/disable recursive indexing |
 | `extensions [ext...]` | Configure file extensions to index |
 | `context-chunks [count]` | Set number of chunks per query |
+| `rag [on\|off]` | Enable/disable RAG (local chunk retrieval) |
+| `web-search [on\|off]` | Enable/disable web search |
+| `web-search-provider [name]` | Choose web search provider (default: bing) |
+| `web-search-results [count]` | Set number of web results when enabled |
 | `model-provider [name]` | Get/set LLM provider |
 | `model [id]` | Get/set model identifier |
 | `embedding-model [id]` | Get/set Ollama embedding model |
 | `api-key [value]` | Manage API keys |
-| `web-search [on\|off]` | Enable/disable web search |
 | `end-session` | Clear session state |
 | `help [command]` | Show help information |
 
