@@ -395,6 +395,13 @@ program
     });
 
 program
+    .command("config")
+    .description("Show the current OpenBook configuration")
+    .action(() => {
+        printConfigSummary(currentConfig);
+    });
+
+program
     .command("help")
     .description("Show help for a specific command")
     .argument("[command]", "Command to show help for", "")
@@ -521,6 +528,46 @@ function maskKey(key: string): string {
     return `${key.slice(0, 3)}***${key.slice(-3)}`;
 }
 
+function printConfigSummary(config: OpenBookConfig): void {
+    const provider = config.modelProvider;
+    const providerLabel = PROVIDERS[provider]?.description ?? provider;
+    const key = config.apiKeys?.[provider];
+
+    console.log("Provider & Model");
+    console.log(`  Provider: ${provider} (${providerLabel})`);
+    console.log(`  Model: ${config.model}`);
+    console.log(`  API Key: ${key ? maskKey(key) : "<not set>"}`);
+    console.log("");
+
+    console.log("Indexing");
+    console.log(`  Recursive: ${formatSwitch(config.recursive)}`);
+    console.log(`  Chunk size: ${config.chunkSize}`);
+    console.log(`  Context chunks/query: ${config.chunksPerQuery}`);
+    console.log(`  Extensions: ${describeExtensions(config.extensions)}`);
+    console.log("");
+
+    console.log("Retrieval & Embeddings");
+    console.log(`  RAG: ${formatSwitch(config.ragEnabled)}`);
+    console.log(`  Embedding model: ${config.embeddingModel || "<not set>"}`);
+    console.log("");
+
+    console.log("Web Search");
+    console.log(`  Enabled: ${formatSwitch(config.webSearchEnabled)}`);
+    console.log(`  Provider: ${config.webSearchProvider}`);
+    console.log(`  Results: ${config.webSearchResults}`);
+}
+
+function formatSwitch(value: boolean): string {
+    return value ? "On" : "Off";
+}
+
+function describeExtensions(exts: string[]): string {
+    if (!exts || exts.length === 0) {
+        return "All file types";
+    }
+    return exts.join(", ");
+}
+
 function listModelsForProvider(provider: ProviderName): void {
     const cfg = PROVIDERS[provider];
     
@@ -578,7 +625,8 @@ function startSpinner(label: string): () => void {
     const frames = ["|", "/", "-", "\\"];
     let i = 0;
     const interval = setInterval(() => {
-        const frame = frames[i = (i + 1) % frames.length];
+        i = (i + 1) % frames.length;
+        const frame = frames[i];
         process.stdout.write(`\r${label} ${frame}`);
     }, 100);
     return () => {

@@ -7,9 +7,10 @@ function loadPrompt(): string {
     if (cachedPrompt) {
         return cachedPrompt;
     }
-const localPath = path.resolve(__dirname, "systemprompt.txt");
-const repoPath = path.resolve(process.cwd(), "src/prompt/systemprompt.txt");
-    const candidatePaths = [localPath, repoPath];
+    const candidatePaths = [
+        path.resolve(__dirname, "systemprompt.txt"),
+        path.resolve(process.cwd(), "src/prompt/systemprompt.txt"),
+    ];
     for (const candidate of candidatePaths) {
         try {
             cachedPrompt = fs.readFileSync(candidate, "utf8");
